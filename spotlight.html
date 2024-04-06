@@ -1,25 +1,10 @@
 <!DOCTYPE html>
 <html>
-<script>
-    // Configuration variables
-    let defaultTitle = 'Spotlight'; // Default title, overridden by list.txt if available
-    const shuffleInterval = 10000; // Time in milliseconds between slide changes
-    const plotMaxLength = 240; // Maximum length of the plot text
-    const numberOfMovies = 20; // Number of movies to fetch each time homescreen is called
-    const randomStartMax = 1000; // Maximum value for random start index, make this roughly lower than your total number movies+series
-    const includeRemoteTrailers = false; // Set to true to include remote trailers in addition to local trailers
-    const UseAnyTrailers = true; // Set to false to disable trailer box completely
-
-    const userId = '0e0755005f074a59bc0108cc2c3e650b'; // Replace with your User ID
-    const token = 'de81a85d55024d7b9fa7b11031de7539'; // Replace with your API token
-    const listFileName = 'list.txt'; // Name of the file containing the list of movie IDs, if no file exists, we will select numberOfMovies at random
-</script>
-
 <head>
-    <title>Spotlight: Jellyfin Featured Slideshow</title>
+    <title>Jellyfin Spotlight</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
     <style>
-        /* CSS styles remain the same */
+        /* CSS styles for the slideshow elements */
         body {
             margin: 0;
             padding: 0;
@@ -30,17 +15,17 @@
             width: 100vw;
             height: 100vh;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            cursor: pointer;
-            outline: none;
+            cursor: pointer; /* Indicates the element is clickable */
+            outline: none; /* Custom focus style will be used */
         }
         .slide:focus {
-            outline: 2px solid #fff;
+            outline: 2px solid #fff; /* Visual focus indicator */
         }
         .backdrop {
             position: absolute;
             top: 50px;
             left: 0;
-            width: 100%;
+            width: calc(100% - 300px); /* Adjust width to account for the video */
             height: calc(100% - 50px);
             object-fit: cover;
             object-position: center 20%;
@@ -75,10 +60,10 @@
         .plot {
             position: absolute;
             bottom: 0px;
-            left: 0;
-            right: 0;
+            left: 0; /* Align to the left edge */
+            right: 0; /* Stretch to the right edge */
             color: white;
-            width: 100%;
+            width: calc(100% - 300px); /* Adjust width to account for the video */
             font-family: 'Noto Sans', sans-serif;
             font-size: 15px;
             background: linear-gradient(to top, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0) 100%);
@@ -87,37 +72,18 @@
             z-index: 4;
             box-sizing: border-box;
         }
-        .wide-screen-content {
+        .video-container {
             position: absolute;
-            top: 0;
             right: 0;
-            width: 550px;
+            top: 0;
+            width: 300px;
             height: 100%;
-            background-color: black;
-            z-index: 5;
-            display: none;
+            z-index: 2;
         }
-        .trailer-iframe {
+        .video-container iframe {
             width: 100%;
             height: 100%;
             border: none;
-        }
-        .slide.with-wide-content .backdrop,
-        .slide.with-wide-content .logo,
-        .slide.with-wide-content .featured-content,
-        .slide.with-wide-content .plot {
-            width: calc(100% - 550px);
-        }
-        @media (max-width: 1200px) {
-            .wide-screen-content {
-                display: none !important;
-            }
-            .slide.with-wide-content .backdrop,
-            .slide.with-wide-content .logo,
-            .slide.with-wide-content .featured-content,
-            .slide.with-wide-content .plot {
-                width: 100%;
-            }
         }
     </style>
 </head>
@@ -128,6 +94,14 @@
 
 <!-- JavaScript for fetching movies and creating the slideshow -->
 <script>
+    // Configuration variables
+    let title = 'Spotlight'; // Default title
+    const userId = '0e0755005f074a59bc0108cc2c3e650b'; // Replace with your User ID
+    const token = 'de81a85d55024d7b9fa7b11031de7539'; // Replace with your API token
+    const shuffleInterval = 10000; // Time in milliseconds between slide changes (25000ms = 25 seconds)
+    const listFileName = 'list.txt'; // Name of the file containing the list of movie IDs
+    const videoUrl = 'https://www.youtube.com/embed/Eavw3ZUJxVw?autoplay=1'; // YouTube video URL
+
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -135,7 +109,7 @@
         }
         return array;
     }
-
+    
     function truncateText(element, maxLength) {
         var truncated = element.innerText;
 
@@ -144,7 +118,7 @@
         }
         element.innerText = truncated;
     }
-
+    
     function createSlideForMovie(movie, title) {
         const container = document.getElementById('slides-container');
         const slideElement = createSlideElement(movie, title);
@@ -154,18 +128,17 @@
     function createSlideElement(movie, title) {
         const itemId = movie.Id;
         const plot = movie.Overview;
-        const hasTrailer = movie.hasTrailer;
-        const trailerId = movie.trailerId;
 
         const slide = document.createElement('a');
         slide.className = 'slide';
         slide.href = `/#!/details?id=${itemId}`;
         slide.target = '_top';
         slide.rel = 'noreferrer';
-        slide.setAttribute('tabindex', '0');
+        slide.setAttribute('tabindex', '0'); // Make the slide focusable
 
+        // Key event listener for remote control input
         slide.addEventListener('keydown', function(event) {
-            if (event.keyCode === 13) {
+            if (event.keyCode === 13) { // Enter key
                 window.location.href = this.href;
             }
         });
@@ -188,194 +161,109 @@
         plotElement.className = 'plot';
         plotElement.textContent = plot;
 
-        truncateText(plotElement, plotMaxLength);
+        // Truncate the text of this specific plot element
+        truncateText(plotElement, 240); // Adjust 240 to your preferred character limit
+
+        const videoContainer = document.createElement('div');
+        videoContainer.className = 'video-container';
+        const iframe = document.createElement('iframe');
+        iframe.src = videoUrl;
+        iframe.allow = 'autoplay';
+        videoContainer.appendChild(iframe);
 
         slide.appendChild(backdrop);
         slide.appendChild(logo);
         slide.appendChild(featuredContent);
         slide.appendChild(plotElement);
-
-        if (UseAnyTrailers && hasTrailer) {
-            slide.classList.add('with-wide-content');
-            const wideScreenContent = document.createElement('div');
-            wideScreenContent.className = 'wide-screen-content';
-            
-            const trailerIframe = document.createElement('iframe');
-            trailerIframe.className = 'trailer-iframe';
-            if (trailerId) {
-                trailerIframe.src = `/web/index.html#!/details?id=${trailerId}&autoplay=true`;
-            } else if (movie.trailerUrl) {
-                trailerIframe.src = movie.trailerUrl;
-            }
-            trailerIframe.allowFullscreen = true;
-
-            wideScreenContent.appendChild(trailerIframe);
-            slide.appendChild(wideScreenContent);
-        }
+        slide.appendChild(videoContainer);
 
         return slide;
     }
 
-    let currentSlide = 0;
-    let slides;
-    let shuffledIndexes;
-
     function initializeSlideshow() {
-        slides = document.querySelectorAll(".slide");
-        shuffledIndexes = shuffleArray(Array.from({ length: slides.length }, (_, i) => i));
+        var slides = document.querySelectorAll(".slide");
+        var currentSlide = 0;
+        var shuffledIndexes = shuffleArray(Array.from({ length: slides.length }, (_, i) => i));
+
+        function showSlide(index) {
+            for (var i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+            }
+            slides[shuffledIndexes[index]].style.display = "block";
+        }
+
+        function nextSlide() {
+            // Remove video iframe from the current slide
+            if (slides[currentSlide]) {
+                const videoContainer = slides[currentSlide].querySelector('.video-container');
+                if (videoContainer) {
+                    videoContainer.remove();
+                }
+            }
+
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+
+            // Add video iframe to the new slide
+            const newSlide = slides[shuffledIndexes[currentSlide]];
+            const newVideoContainer = document.createElement('div');
+            newVideoContainer.className = 'video-container';
+            const newIframe = document.createElement('iframe');
+            newIframe.src = videoUrl;
+            newIframe.allow = 'autoplay';
+            newVideoContainer.appendChild(newIframe);
+            newSlide.appendChild(newVideoContainer);
+        }
 
         showSlide(currentSlide);
         setInterval(nextSlide, shuffleInterval);
-        toggleWideScreenContent();
-    }
-
-    function showSlide(index) {
-        for (var i = 0; i < slides.length; i++) {
-            slides[i].style.display = "none";
-        }
-        slides[shuffledIndexes[index]].style.display = "block";
-        destroyTrailer();
-    }
-
-    function nextSlide() {
-        currentSlide = (currentSlide + 1) % slides.length;
-        showSlide(currentSlide);
-    }
-
-    function destroyTrailer() {
-        const activeSlide = document.querySelector('.slide[style="display: block;"]');
-        if (activeSlide) {
-            const iframe = activeSlide.querySelector('.trailer-iframe');
-            if (iframe) {
-                iframe.src = '';
-            }
-        }
-    }
-
-    function checkContainerWidth() {
-        const container = document.getElementById('slides-container');
-        return container.offsetWidth;
-    }
-
-    let resizeTimeout;
-    function debounce(func, wait) {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(func, wait);
-    }
-
-    function toggleWideScreenContent() {
-        const containerWidth = checkContainerWidth();
-        const wideScreenSlides = document.querySelectorAll('.slide.with-wide-content');
-        const minWidth = 1200;
-
-        wideScreenSlides.forEach(slide => {
-            const wideScreenContent = slide.querySelector('.wide-screen-content');
-            if (containerWidth >= minWidth) {
-                wideScreenContent.style.display = 'block';
-                slide.classList.add('wide-content-active');
-            } else {
-                wideScreenContent.style.display = 'none';
-                slide.classList.remove('wide-content-active');
-            }
-        });
-    }
-
-    function checkBackdropAndTrailer(movie) {
-        return Promise.all([
-            fetch(`/Items/${movie.Id}/Images/Backdrop/0`, {
-                method: 'HEAD',
-                headers: {
-                    'Authorization': `MediaBrowser Client="Jellyfin Web", Device="YourDeviceName", DeviceId="YourDeviceId", Version="YourClientVersion", Token="${token}"`
-                }
-            }),
-            fetch(`/Users/${userId}/Items/${movie.Id}`, {
-                headers: {
-                    'Authorization': `MediaBrowser Client="Jellyfin Web", Device="YourDeviceName", DeviceId="YourDeviceId", Version="YourClientVersion", Token="${token}"`
-                }
-            }).then(response => response.json())
-        ])
-        .then(([backdropResponse, movieDetails]) => {
-            if (backdropResponse.ok) {
-                if (movie.ImageTags && movie.ImageTags.Logo) {
-                    let hasTrailer = false;
-                    let trailerId = null;
-                    let trailerUrl = null;
-
-                    if (movieDetails.LocalTrailerCount > 0) {
-                        hasTrailer = true;
-                        trailerId = movie.Id;
-                    } 
-                    else if (includeRemoteTrailers && movieDetails.RemoteTrailers && movieDetails.RemoteTrailers.length > 0) {
-                        hasTrailer = true;
-                        trailerUrl = movieDetails.RemoteTrailers[0].Url;
-                    }
-
-                    return { ...movie, hasTrailer, trailerId, trailerUrl };
-                } else {
-                    console.log(`Slide dismissed for lack of logo: ${movie.Name}`);
-                    return null;
-                }
-            } else {
-                console.log(`Slide dismissed for lack of backdrop: ${movie.Name}`);
-                return null;
-            }
-        })
-        .catch(error => {
-            console.error(`Error checking backdrop and trailer for movie: ${movie.Name}`, error);
-            return null;
-        });
     }
 
     function fetchMovies() {
         const noCacheUrl = listFileName + '?' + new Date().getTime();
 
         fetch(noCacheUrl)
-            .then(response => {
-                if (response.ok) {
-                    return response.text();
-                } else {
-                    throw new Error('list.txt not found, fetching movies from server.');
-                }
-            })
-            .then(text => {
-                const lines = text.split('\n').filter(Boolean);
-                const listTitle = lines.shift();
-                if (listTitle) {
-                    defaultTitle = listTitle;
-                }
+        .then(response => {
+            if (response.ok) {
+                return response.text();
+            } else {
+                throw new Error('list.txt not found, fetching movies from server.');
+            }
+        })
+        .then(text => {
+            const lines = text.split('\n').filter(Boolean);
+            title = lines.shift() || 'Spotlight'; // Set the global title
 
-                const movieIds = lines.map(line => line.substring(0, 32));
-                return Promise.all(movieIds.map(id => fetchMovieDetails(id)));
-            })
-            .then(movies => {
-                Promise.all(movies.map(movie => checkBackdropAndTrailer(movie)))
-                    .then(filteredMovies => {
-                        filteredMovies.filter(movie => movie !== null).forEach(movie => createSlideForMovie(movie, defaultTitle));
-                        initializeSlideshow();
-                    });
-            })
-            .catch(error => {
-                console.error(error);
-                fetchMoviesFromServer();
-            });
+            const movieIds = lines.map(line => line.substring(0, 32));
+            return Promise.all(movieIds.map(id => fetchMovieDetails(id)));
+        })
+        .then(movies => {
+            movies.forEach(movie => createSlideForMovie(movie, title));
+            initializeSlideshow();
+        })
+        .catch(error => {
+            console.error(error);
+            fetchMoviesFromServer(); // Fallback to fetching movies from the server
+        });
     }
-
+    
     function fetchMovieDetails(movieId) {
         return fetch(`/Users/${userId}/Items/${movieId}`, {
             headers: {
                 'Authorization': `MediaBrowser Client="Jellyfin Web", Device="YourDeviceName", DeviceId="YourDeviceId", Version="YourClientVersion", Token="${token}"`
             }
         })
-            .then(response => response.json())
-            .then(movie => {
-                console.log("Slide Movie Title:", movie.Name);
-                return movie;
-            });
+        .then(response => response.json())
+        .then(movie => {
+            console.log("Movie Title:", movie.Name);
+            console.log("Movie Overview:", movie.Overview);
+            return movie;
+        });
     }
 
     function fetchMoviesFromServer() {
-        const randomStartIndex = Math.floor(Math.random() * randomStartMax);
-        fetch(`/Users/${userId}/Items?IncludeItemTypes=Movie,Series&Recursive=true&Limit=${numberOfMovies}&StartIndex=${randomStartIndex}`, {
+        title = 'Spotlight'; // Reset title to 'Spotlight' when fetching from server
+        fetch(`/Users/${userId}/Items?IncludeItemTypes=Movie,Series&Recursive=true&Limit=300`, {
             headers: {
                 'Authorization': `MediaBrowser Client="Jellyfin Web", Device="YourDeviceName", DeviceId="YourDeviceId", Version="YourClientVersion", Token="${token}"`
             }
@@ -384,67 +272,17 @@
         .then(data => {
             const movies = data.Items;
             const shuffledMovies = shuffleArray(movies);
-            const selectedMovieIds = shuffledMovies.slice(0, numberOfMovies).map(movie => movie.Id);
+            const selectedMovieIds = shuffledMovies.slice(0, 30).map(movie => movie.Id);
             return Promise.all(selectedMovieIds.map(id => fetchMovieDetails(id)));
         })
         .then(movies => {
-            Promise.all(movies.map(movie => checkBackdropAndTrailer(movie)))
-                .then(filteredMovies => {
-                    filteredMovies.filter(movie => movie !== null).forEach(movie => createSlideForMovie(movie, defaultTitle));
-                    initializeSlideshow();
-                });
+            movies.forEach(movie => createSlideForMovie(movie, 'Spotlight'));
+            initializeSlideshow();
         })
         .catch(error => console.error('Error fetching movies:', error));
     }
 
     fetchMovies();
-    window.addEventListener('resize', () => debounce(toggleWideScreenContent, 250));
-
-    // Handle visibility change to destroy trailer when page is hidden
-    document.addEventListener("visibilitychange", () => {
-        if (document.hidden) {
-            destroyTrailer();
-        }
-    });
-	
-	// Intersection Observer to handle off-screen slides
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (!entry.isIntersecting) {
-                const iframe = entry.target.querySelector('.trailer-iframe');
-                if (iframe) {
-                    iframe.src = '';
-                }
-            }
-        });
-    }, { threshold: 0.1 }); // Trigger when 10% of the slide is visible
-
-    function observeSlides() {
-        document.querySelectorAll('.slide').forEach(slide => {
-            observer.observe(slide);
-        });
-    }
-
-    // Call observeSlides after slides are created
-    function initializeSlideshow() {
-        slides = document.querySelectorAll(".slide");
-        shuffledIndexes = shuffleArray(Array.from({ length: slides.length }, (_, i) => i));
-
-        showSlide(currentSlide);
-        setInterval(nextSlide, shuffleInterval);
-        toggleWideScreenContent();
-        observeSlides(); // Add this line to start observing slides
-    }
-
-    fetchMovies();
-    window.addEventListener('resize', () => debounce(toggleWideScreenContent, 250));
-
-    // Handle visibility change to destroy trailer when page is hidden
-    document.addEventListener("visibilitychange", () => {
-        if (document.hidden) {
-            destroyTrailer();
-        }
-    });
 </script>
 </body>
 </html>
