@@ -1,30 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Jellyfin Spotlight</title>
+    <title>Jellyfin Spotlight v2.1.5</title>
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; }
-        .slide { position: relative; width: 100vw; height: 100vh; box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); cursor: pointer; outline: none; }
-        .slide:focus { outline: 2px solid #fff; }
-        .backdrop { position: absolute; top: 50px; left: 0; width: 100%; height: calc(100% - 50px); object-fit: cover; object-position: center 20%; border-radius: 5px; z-index: 1; }
-        .logo { position: absolute; top: 65%; left: 10px; transform: translateY(-50%); max-height: 50%; max-width: 30%; width: auto; z-index: 3; }
-        .plot { position: absolute; bottom: 0; left: 0; right: 0; color: white; width: calc(100% - 300px); font-family: 'Noto Sans', sans-serif; font-size: 16px; background: linear-gradient(to top, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0) 100%); padding: 10px; border-radius: 5px; z-index: 4; box-sizing: border-box; }
-        .featured-content { position: absolute; top: 0; left: 0; width: calc(100% - 300px); height: 50px; background-color: transparent; font-family: 'Noto Sans', sans-serif; color: #D3D3D3; font-size: 22px; display: flex; align-items: center; justify-content: flex-start; z-index: 2; padding: 10px; box-sizing: border-box; }
-        .video-container { position: absolute; right: 0; top: 0; width: 300px; height: 100%; z-index: 2; }
-        .video-player { width: 100%; height: 100%; }
+		body { margin: 0; padding: 0; overflow: hidden; }
+		.slide { position: relative; width: 100vw; height: 100vh; box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); cursor: pointer; }
+		.slide:focus { outline: 2px solid #fff; }
+		.backdrop { position: absolute; top: 50px; left: 0; width: 100%; height: calc(100% - 50px); object-fit: cover; object-position: center 30%; border-radius: 5px; z-index: 1; transition: width 0.5s ease; }
+		.logo { position: absolute; top: 55%; left: 100px; transform: translateY(-50%); max-height: 50%; max-width: 30%; width: auto; z-index: 3; transition: top 0.5s ease, transform 0.5s ease; text-shadow: -2px 2px 4px rgba(0, 0, 0, 0.5); }
+		.heading { position: absolute; top: 0; left: 0; width: 100%; height: 50px; background-color: transparent; font-family: 'Noto Sans', sans-serif; color: #D3D3D3; font-size: 22px; display: flex; align-items: center; justify-content: flex-start; z-index: 2; padding: 10px; box-sizing: border-box; }
+		.skip-button { position: absolute; top: 0; right: 0; width: 50px; height: 50px; background-color: transparent; font-family: 'Noto Sans', sans-serif; color: #D3D3D3; font-size: 22px; display: flex; align-items: center; justify-content: center; z-index: 2; padding: 10px; cursor: pointer; box-sizing: border-box; }
+		.video-container { position: absolute; right: 0; top: 50px; width: 0; height: calc(100% - 50px); overflow: hidden; z-index: 2; transition: width 0.5s ease; z-index: 6; }
+		.video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 7; }
+		.clickable-overlay { position: absolute; top: 50px; left: 0; width: calc(100% - 50px); height: calc(100% - 50px); z-index: 2; cursor: pointer; }
+		.lorem-ipsum { position: absolute; top: 55px; right: 15px; font-size: 22px; text-shadow: 4px 4px 8px rgba(0, 0, 0, 1); opacity: 0; transition: opacity 0.3s ease; font-weight: bold; font-style: italic; color: #ecf0f1; z-index: 4; box-sizing: border-box; transition: width 0.5s ease; }
+		.plot { position: absolute; bottom: 0; left: 0; right: 0; color: white; font-family: 'Noto Sans', sans-serif; font-size: 16px; background: linear-gradient(to top, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0) 100%); padding: 10px; border-radius: 5px; z-index: 4; box-sizing: border-box; transition: width 0.5s ease; }
+		.slide:hover .logo { top: 45%; transform: translateY(-50%) scale(1.2); }
+		.slide:hover .lorem-ipsum { opacity: 1; }
     </style>
 </head>
 <body>
     <div id="slides-container"></div>
     <script>
-        let title = 'Spotlight II'; // Changeable title
-        let movies2series3moviesandseries = 3; // 1 for movies, 2 for series, 3 for both
-        const shuffleInterval = 10000;
-        const plotMaxLength = 240;
-        const userId = '0e0755005f074a59bc0108cc2c3e650b';
-        const token = 'de81a85d55024d7b9fa7b11031de7539';
-        let useTrailers = true; // New global variable
-        let player = null; // YouTube player instance
+        let title = 'Spotlight', moviesSeriesBoth = 3, shuffleInterval = 10000, plotMaxLength = 240, userId = '0e0755005f074a59bc0108cc2c3e650b', token = 'de81a85d55024d7b9fa7b11031de7539', useTrailers = true;  // Changeable variables
+        let isChangingSlide = false, player = null, slideChangeTimeout = null;
+        let currentLocation = window.top.location.href;
 
         function createElem(tag, className, textContent, src, alt) {
             const elem = document.createElement(tag);
@@ -39,105 +39,186 @@
             return text.length > maxLength ? text.substr(0, maxLength) + '...' : text;
         }
 
-        function createSlideElement(movie) {
-            const container = document.getElementById('slides-container');
-            const slide = createElem('div', 'slide');
-
-            slide.appendChild(createElem('img', 'backdrop', null, `/Items/${movie.Id}/Images/Backdrop/0`, 'Backdrop'));
-            slide.appendChild(createElem('img', 'logo', null, `/Items/${movie.Id}/Images/Logo`, 'Logo'));
-            slide.appendChild(createElem('div', 'featured-content', title));
-
-            const plotText = movie.Overview.length > plotMaxLength ? movie.Overview.substr(0, plotMaxLength) + '...' : movie.Overview;
-            slide.appendChild(createElem('div', 'plot', plotText));
-
-            if (useTrailers && movie.RemoteTrailers && movie.RemoteTrailers.length > 0) {
-                const trailerUrl = movie.RemoteTrailers[0].Url; // Use the exact trailer URL from Jellyfin
-                const videoId = new URL(trailerUrl).searchParams.get('v'); // Extract video ID from the URL
-
-                console.log(`Trailer found: ${videoId}`);
-                const videoContainer = createElem('div', 'video-container');
-                const videoElement = createElem('div', 'video-player');
-                videoContainer.appendChild(videoElement);
-                slide.appendChild(videoContainer);
-
-                // Create the YouTube player
-                if (player) player.destroy(); // Clean up existing player
-                player = new YT.Player(videoElement, {
-                    height: '100%',
-                    width: '100%',
-                    videoId: videoId,
-                    events: {
-                        'onReady': onPlayerReady
-                    }
-                });
-            } else if (useTrailers) {
-                console.log('No trailer found.');
+        function cleanup() {
+            if (player) {
+                player.destroy();
+                player = null;
             }
+            clearSlideChangeTimeout();
+            const container = document.getElementById('slides-container');
+            if (container) container.innerHTML = '';
+        }
 
-            container.innerHTML = '';
-            container.appendChild(slide);
+		function createSlideElement(movie, hasVideo = false) {
+			cleanup(); // Ensure cleanup before creating a new slide
+			const container = document.getElementById('slides-container');
+			const slide = createElem('div', 'slide');
+
+			slide.appendChild(createElem('img', 'backdrop', null, `/Items/${movie.Id}/Images/Backdrop/0`, 'Backdrop'));
+			slide.appendChild(createElem('img', 'logo', null, `/Items/${movie.Id}/Images/Logo`, 'Logo'));
+			slide.appendChild(createElem('div', 'heading', title));
+
+			const textContainer = createElem('div', 'text-container');
+			// Format premiere year
+			const premiereYear = movie.PremiereDate ? new Date(movie.PremiereDate).getFullYear() : 'Unknown';
+			let additionalInfo;
+
+			if (movie.Type === 'Series') {
+				// Use SeasonCount for TV shows
+				additionalInfo = movie.ChildCount ? `${movie.ChildCount} Seasons` : 'Unknown Seasons';
+			} else {
+				// Convert runtime from ticks to minutes for movies
+				const runtimeMinutes = movie.RunTimeTicks ? Math.round(movie.RunTimeTicks / 600000000) : 'Unknown';
+				additionalInfo = runtimeMinutes !== 'Unknown' ? `${runtimeMinutes} min` : 'Unknown Runtime';
+			}
+
+			// Combine into the text content
+			const loremText = `(${premiereYear}) - ${additionalInfo}`;
+
+			textContainer.appendChild(createElem('div', 'lorem-ipsum', loremText));
+			textContainer.appendChild(createElem('div', 'plot', truncateText(movie.Overview, plotMaxLength)));
+			slide.appendChild(textContainer);
+
+			const skipButton = createElem('div', 'skip-button', '>');
+			skipButton.onclick = (e) => {
+				e.stopPropagation();
+				fetchRandomMovie();
+			};
+			slide.appendChild(skipButton);
+
+			const overlay = createElem('div', 'clickable-overlay');
+			overlay.onclick = () => {
+				window.top.location.href = `/#!/details?id=${movie.Id}`;
+			};
+			slide.appendChild(overlay);
+
+			if (useTrailers && hasVideo && movie.RemoteTrailers && movie.RemoteTrailers.length > 0) {
+				const trailerUrl = movie.RemoteTrailers[0].Url;
+				const videoId = new URL(trailerUrl).searchParams.get('v');
+
+				const videoContainer = createElem('div', 'video-container');
+				const videoElement = createElem('div', 'video-player');
+				videoContainer.appendChild(videoElement);
+				slide.appendChild(videoContainer);
+
+				player = new YT.Player(videoElement, {
+					height: '100%',
+					width: '100%',
+					videoId: videoId,
+					events: {
+						'onReady': event => {
+							event.target.playVideo();
+							document.querySelector('.backdrop').style.width = 'calc(100% - 505px)';
+							document.querySelector('.plot').style.width = 'calc(100% - 505px)';
+							document.querySelector('.lorem-ipsum').style.width = 'calc(0% + 695px)';
+							videoContainer.style.width = '505px';
+						},
+						'onStateChange': event => {
+							if (event.data === YT.PlayerState.ENDED) {
+								setTimeout(fetchRandomMovie, 100);
+							}
+						},
+						'onError': () => {
+							console.error(`YouTube playback prevented for '${movie.Name}'`);
+							if (player) {
+								player.destroy();
+								player = null;
+							}
+
+							const backdrop = document.querySelector('.backdrop');
+							const plot = document.querySelector('.plot');
+							const videoContainer = document.querySelector('.video-container');
+
+							if (backdrop) backdrop.style.width = '100%';
+							if (plot) plot.style.width = '100%';
+							if (videoContainer) videoContainer.style.width = '0';
+
+							startSlideChangeTimer();
+						}
+					}
+				});
+			} else {
+				startSlideChangeTimer();
+			}
+
+			container.innerHTML = '';
+			container.appendChild(slide);
+		}
+
+        function startSlideChangeTimer() {
+            clearSlideChangeTimeout();
+            slideChangeTimeout = setTimeout(fetchRandomMovie, shuffleInterval);
+        }
+
+        function clearSlideChangeTimeout() {
+            if (slideChangeTimeout) {
+                clearTimeout(slideChangeTimeout);
+                slideChangeTimeout = null;
+            }
         }
 
         function checkBackdropAndLogo(movie) {
-            const itemId = movie.Id;
+            const backdropUrl = `/Items/${movie.Id}/Images/Backdrop/0`;
+            const logoUrl = `/Items/${movie.Id}/Images/Logo`;
 
-            fetch(`/Items/${itemId}/Images/Backdrop/0`, { method: 'HEAD' })
-                .then(response => {
-                    if (response.ok) {
-                        return fetch(`/Items/${itemId}/Images/Logo`, { method: 'HEAD' });
-                    }
-                    throw new Error('No backdrop');
-                })
-                .then(response => {
-                    if (response.ok) {
-                        createSlideElement(movie);
-                    } else {
-                        throw new Error('No logo');
-                    }
-                })
-                .catch(() => fetchRandomMovie());
-        }
-
-        function fetchRandomMovie() {
-            const itemTypes = movies2series3moviesandseries === 1 ? 'Movie' : (movies2series3moviesandseries === 2 ? 'Series' : 'Movie,Series');
-            const headers = { 'Authorization': `MediaBrowser Client="Jellyfin Web", Device="YourDeviceName", DeviceId="YourDeviceId", Version="YourClientVersion", Token="${token}"` };
-
-            fetch(`/Users/${userId}/Items?IncludeItemTypes=${itemTypes}&Recursive=true&Limit=1&Fields=Id,Overview,RemoteTrailers`, { headers })
-                .then(response => response.json())
-                .then(({ TotalRecordCount = 0 }) => {
-                    const randomStartIndex = Math.floor(Math.random() * Math.min(TotalRecordCount, 2000));
-                    return fetch(`/Users/${userId}/Items?IncludeItemTypes=${itemTypes}&Recursive=true&Limit=1&StartIndex=${randomStartIndex}&Fields=Id,Overview,RemoteTrailers`, { headers });
-                })
-                .then(response => response.json())
-                .then(({ Items }) => Items.length > 0 ? checkBackdropAndLogo(Items[0]) : fetchRandomMovie())
-                .catch(fetchRandomMovie);
-        }
-
-        function initializeSlideshow() {
-            fetchRandomMovie();
-            function scheduleNextFetch() {
-                setTimeout(() => {
+            Promise.all([
+                fetch(backdropUrl, { method: 'HEAD' }).then(response => response.ok),
+                fetch(logoUrl, { method: 'HEAD' }).then(response => response.ok)
+            ]).then(([backdropExists, logoExists]) => {
+                if (backdropExists && logoExists) {
+                    createSlideElement(movie, true);
+                } else {
                     fetchRandomMovie();
-                    scheduleNextFetch();
-                }, shuffleInterval);
+                }
+            }).catch(() => fetchRandomMovie());
+        }
+
+		function fetchRandomMovie() {
+			if (isChangingSlide) return;
+			isChangingSlide = true;
+
+			const itemTypes = moviesSeriesBoth === 1 ? 'Movie' : (moviesSeriesBoth === 2 ? 'Series' : 'Movie,Series');
+			const headers = { 'Authorization': `MediaBrowser Client="Jellyfin Web", Device="YourDeviceName", DeviceId="YourDeviceId", Version="YourClientVersion", Token="${token}"` };
+
+			fetch(`/Users/${userId}/Items?IncludeItemTypes=${itemTypes}&Recursive=true&Limit=1&SortBy=random&Fields=Id,Overview,RemoteTrailers,PremiereDate,RunTimeTicks,ChildCount`, { headers })
+				.then(response => response.json())
+				.then(data => {
+					const movie = data.Items[0];
+					if (movie) checkBackdropAndLogo(movie);
+					else throw new Error('No items found');
+				})
+				.catch(error => {
+					console.error('Failed to fetch movie:', error);
+					startSlideChangeTimer();
+				})
+				.finally(() => {
+					isChangingSlide = false;
+				});
+		}
+
+        function checkNavigation() {
+            if (window.top.location.href !== currentLocation) {
+                currentLocation = window.top.location.href;
+                cleanup();
             }
-            scheduleNextFetch();
         }
 
-        function onPlayerReady(event) {
-            event.target.playVideo();
+        function checkScreenWidth() {
+            if (window.innerWidth < 1001) {
+                useTrailers = false;
+            }
         }
 
+        setInterval(checkNavigation, 1000); // Check every second to destroy slideshow if user navigation
+
+        // Init
         document.addEventListener('DOMContentLoaded', () => {
-            // Load YouTube IFrame API script
-            const script = document.createElement('script');
-            script.src = 'https://www.youtube.com/iframe_api';
-            document.head.appendChild(script);
-
-            script.onload = () => {
-                initializeSlideshow();
-            };
+            checkScreenWidth(); // Check screen width before fetching movies
+            fetchRandomMovie();
         });
+
+        window.addEventListener('unload', cleanup);
     </script>
+    <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
