@@ -1,160 +1,309 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <title>Jellyfin Spotlight v2.2.3</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Jellyfin Spotlight v2.3.2</title>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <style>
 		@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap');
 		body { margin: 0; padding: 0; overflow: hidden; }
-		.slide { position: relative; width: 100vw; height: 100vh; box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); cursor: pointer; }
+		.slide { position: relative; width: 100vw; height: 22em; cursor: pointer; border-radius: 2em; }
 		.slide:focus { outline: 2px solid #fff; }
-		.backdrop { position: absolute; top: 50px; left: 0; width: 100%; height: calc(100% - 50px); object-fit: cover; object-position: center 30%; border-radius: 5px; z-index: 1; transition: width 0.5s ease; }
-		.logo { position: absolute; top: 55%; left: 23%; transform: translateY(-50%) translateX(-50%) !important; max-height: 50%; max-width: 30%; width: auto; z-index: 5; transition: top 0.5s ease, transform 2.5s ease; text-shadow: -2px 2px 4px rgba(0, 0, 0, 0.5); filter: drop-shadow(1px 1px 1px); }
-		.heading { position: absolute; top: 0; left: 0; width: 100%; height: 50px; background-color: transparent; font-family: "Titillium Web", sans-serif; color: #D3D3D3; font-size: 22px; display: flex; align-items: center; justify-content: flex-start; z-index: 2; padding: 10px; box-sizing: border-box; }
-		.skip-button { position: absolute; top: 0; right: 0; width: 50px; height: 50px; background-color: transparent; font-family: "Titillium Web", sans-serif; color: #D3D3D3; font-size: 22px; display: flex; align-items: center; justify-content: center; z-index: 2; padding: 10px; cursor: pointer; box-sizing: border-box; }
-		.video-container { position: absolute; right: 0; top: 50px; width: 0; height: calc(100% - 50px); overflow: hidden; z-index: 2; transition: width 0.5s ease; z-index: 6; }
-		.video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 8; }
-		.clickable-overlay { position: absolute; top: 50px; left: 0; width: calc(100% - 50px); height: calc(100% - 50px); z-index: 7; cursor: pointer; background: linear-gradient(140deg, rgba(0, 0, 0, 0.89) 0%, rgba(0, 0, 0, 0.69) 6.25%, rgba(0, 0, 0, 0.52) 12.5%, rgba(0, 0, 0, 0.39) 18.75%, rgba(0, 0, 0, 0.28) 25%, rgba(0, 0, 0, 0.2) 31.25%, rgba(0, 0, 0, 0.14) 37.5%, rgba(0, 0, 0, 0.09) 43.75%, rgba(0, 0, 0, 0.05) 50%, rgba(0, 0, 0, 0.03) 56.25%, rgba(0, 0, 0, 0.02) 62.5%, rgba(0, 0, 0, 0.01) 68.75%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0) 81.25%, rgba(0, 0, 0, 0) 87.5%, rgba(0, 0, 0, 0) 93.75%, rgba(0, 0, 0, 0) 100% ); }
-		.lorem-ipsum { position: absolute; top: 3.2em; width: 100%; text-align: right; font-family: "Titillium Web", sans-serif; font-size: 1.1em; text-shadow: 2px 2px 20px rgba(0, 0, 0, 1); opacity: 0; transition: opacity 0.3s ease, width 0.5s ease; color: #ecf0f1; z-index: 4; box-sizing: border-box; line-height: 1.75em; padding-right: 10px;}
-		.plot { position: absolute; bottom: 0; left: 0; right: 0; color: white; font-family: "Titillium Web", sans-serif; font-size: 1.1em; font-style: italic; background: linear-gradient(0deg, rgb(0% 0% 0% / 0.86) 0%, rgb(0% 0% 0% / 0.8566406249999999) 6.25%, rgb(0% 0% 0% / 0.8465625) 12.5%, rgb(0% 0% 0% / 0.829765625) 18.75%, rgb(0% 0% 0% / 0.80625) 25%, rgb(0% 0% 0% / 0.776015625) 31.25%, rgb(0% 0% 0% / 0.7390625) 37.5%, rgb(0% 0% 0% / 0.6953906249999999) 43.75%, rgb(0% 0% 0% / 0.645) 50%, rgb(0% 0% 0% / 0.587890625) 56.25%, rgb(0% 0% 0% / 0.5240625) 62.5%, rgb(0% 0% 0% / 0.453515625) 68.75%, rgb(0% 0% 0% / 0.37625) 75%, rgb(0% 0% 0% / 0.292265625) 81.25%, rgb(0% 0% 0% / 0.20156249999999998) 87.5%, rgb(0% 0% 0% / 0.10414062499999999) 93.75%, rgb(0% 0% 0% / 0) 100% ); padding: 10px; border-radius: 0.2em; z-index: 4; box-sizing: border-box; transition: width 0.5s ease; padding-bottom: 3px; padding-top: 0.5em; line-height: 1.3em; text-shadow: 1px 1px 4px rgba(0, 0, 0, 1);}
-		.slide:hover .logo { transform: translateY(-50%) translateX(-50%) scale(1.35) !important; }
-		.slide:hover .lorem-ipsum { opacity: 1; }
-		.star-icon { color: gold; font-size: 1em; margin-right: 0em;
-	}
+		.backdrop { position: absolute; top: 0em; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; z-index: 1; transition: width 0.5s ease, filter 0.8s ease, scale 2s ease; transform-origin: top; animation: objectPositionAnimation 45s ease-in-out infinite; border-radius: 1em;}
+		.logo { position: relative; transform: translateX(-50%) translateY(-50%); top: 56%; max-height: 9em; max-width: 29em; width: auto; z-index: 3; text-shadow: -2px 2px 4px rgba(0, 0, 0, 0.5); filter: drop-shadow(1px 1px 1px); pointer-events: none; transition: transform 0.3s ease, max-height 0.3s ease, max-width 0.3s ease, left 0.5s ease;}
+		.heading::before { content: ''; position: absolute; top: 2.27em; left: 0; width: 100%; height: 100vh; background: linear-gradient(0deg, rgb(0% 0% 0%) 0%, rgb(0% 0% 0% / 0.9990234375) 6.25%, rgba(0, 0, 0, 0.99) 12.5%, rgba(0, 0, 0, 0.97) 18.75%, rgba(0, 0, 0, 0.94) 25%, rgba(0, 0, 0, 0.88) 31.25%, rgba(0, 0, 0, 0.79) 37.5%, rgba(0, 0, 0, 0.67) 43.75%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.33) 56.25%, rgba(0, 0, 0, 0.21) 62.5%, rgba(0, 0, 0, 0.12) 68.75%, rgba(0, 0, 0, 0.06) 75%, rgba(0, 0, 0, 0.03) 81.25%, rgba(0, 0, 0, 0.01) 87.5%, rgba(0, 0, 0, 0) 93.75%, rgba(0, 0, 0, 0) 100% ); z-index: 7; opacity: 0;}
+		.heading { position: absolute; top: 0; left: 0; width: 100%; height: 2.3em; background-color: transparent; font-family: "Titillium Web", sans-serif; color: #D3D3D3; font-size: 22px; display: none; align-items: center; justify-content: flex-start; z-index: 2; padding: 10px; padding-left: 0px; box-sizing: border-box; text-shadow: 1px 1px 4px rgba(0, 0, 0, 1); }
+		.skip-button { position: absolute; right: 0.25em; color: #D3D3D3; cursor: pointer; z-index: 10; font-family: "Titillium Web", sans-serif; text-shadow: 1px 1px 4px rgba(0, 0, 0, 1);}
+		.back-button { position: absolute; right: 2em; color: #D3D3D3; cursor: pointer; z-index: 10; font-family: "Titillium Web", sans-serif; text-shadow: 1px 1px 4px rgba(0, 0, 0, 1); display: none;}
+		 .details-button {display: none;}
+		.material-icons {font-size: 1em;}
+		.video-container { position: absolute; right: 0; top: 0px; width: 0; height: calc(100%); overflow: hidden; transition: width 0.5s ease; z-index: 5; border-top-right-radius: 0.5em; border-bottom-right-radius: 0.5em; }
+		.video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 7; }
+		.clickable-overlay { position: absolute; top: 50px; left: 0; width: 100%; height: calc(100% - 50px); z-index: 2; cursor: pointer; background: transparent; transition: background 0.8s ease, backdrop-filter 0.8s ease;}
+		.lorem-ipsum {position: absolute; bottom: 20.1em; Right: 0em; font-family: "Titillium Web", sans-serif; font-size: 1em; text-shadow: 1px 1px 1px rgba(0, 0, 0, 1); opacity: 1; color: #fff; z-index: 9; box-sizing: border-box; background: transparent; max-width: fit-content; padding-left: 90vw; padding-right: 0.3em; display: flex; flex-direction: row; max-height: 1.9em; padding-top: 0.15em; white-space: nowrap; transition: padding-right 0.3s ease;}
+		.lorem-ipsum span { margin-right: 0.2em;}
+		.age-rating {position: absolute; top: 0.1em; left: 2em; text-align: left; font-family: "Titillium Web", sans-serif; font-size: 1.2em; text-shadow: 1px 1px 1px rgba(0, 0, 0, 1); opacity: 1; color: #fff; z-index: 7; box-sizing: border-box; background: transparent; max-width: fit-content; padding-left: 0.3em; padding-right: 0.3em; display: flex; flex-direction: row; max-height: 1.9em; padding-top: 0.15em; white-space: nowrap;}
+		.plot { position: absolute; bottom: 0.1em; left: 2.2em; right: 0; color: #fff; font-family: "Titillium Web", sans-serif; font-size: 0.95em; font-weight: 500; background: transparent; padding: 10px; z-index: 7; box-sizing: border-box; padding-bottom: 3px; padding-top: 0.5em; line-height: 1.2em; text-shadow: 1px 1px 1px rgba(0, 0, 0, 1); display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; border-bottom-left-radius: 0.45em; transition: opacity 0.1s ease, max-height 0.8s ease, width 0.3s ease; opacity: 0; max-width: 99vw; opacity: 1; -webkit-line-clamp: 2; max-height: 7.8em;}
+		.genres { position: absolute; text-shadow: 1px 1px 1px rgba(0, 0, 0, 1); top: -0.25em; color: #fff; font-family: "Titillium Web", sans-serif; font-size: 1em; opacity: 1; transition: opacity 0.3s ease; max-width: 39em; overflow: hidden; height: 1.95em; padding-top: 0.25em; line-height: 2em; white-space: nowrap;}		
+		.premiere-year {position: absolute; top: 5.75em; left: 0.5em; font-size: 0.9em; font-family: "Titillium Web", sans-serif; color: #fff; z-index: 3; opacity: 0; transition: opacity 0.3s; text-align: center; width: 3.5em;}
+		.additional-info {position: absolute; top: 7.3em; left: 31em; font-size: 0.9em; font-family: "Titillium Web", sans-serif; color: #fff; z-index: 3; opacity: 1; transition: opacity 0.3s; text-align: right; width: 5em;}
+		.community-rating {position: absolute; font-family: "Titillium Web", sans-serif; color: #fff; z-index: 3; opacity: 1; transition: opacity 0.3s; text-align: center; width: 3.6em; text-shadow: 1px 1px 1px rgba(0, 0, 0, 1);}
+		.critic-rating {position: absolute; top: 5.75em; right: 73%; font-size: 0.9em; font-family: "Titillium Web", sans-serif; color: #fff; z-index: 3; opacity: 1; transition: opacity 0.3s; text-align: center; width: 3.9em; text-shadow: 1px 1px 1px rgba(0, 0, 0, 1);}
+		@keyframes objectPositionAnimation { 0% { object-position: center 30%; } 40% { object-position: center 80%; } 80% { object-position: center 20%; } 100% { object-position: center 30%; }}
+		.slide:hover .backdrop {filter: brightness(95%) contrast(105%) saturate(105%); transform:scale(1);}
+		.slide:hover .clickable-overlay { }
+		.slide:hover .clickable-overlay::before { opacity: 0; backdrop-filter: blur(0px);}
+		.slide:hover .logo { }
+		.slide:hover .plot { }
+		.slide:hover .lorem-ipsum::before { opacity:1; backdrop-filter: blur(2px); transform: translateX(0); }
+		.star-icon { color: gold; font-size: 0.9em;  padding-right: 0.2em; margin-left: -0.1em;}
+		@media (max-width: 1000px) { .age-rating {position: absolute; top: 1em; left: 1em; font-size: 0.85em;} .lorem-ipsum {font-size: 0.7em; transform: translateX(50%); right: 50vw !important; padding-left: 0; padding-right: 1em;} .logo { transform: translateX(-50%) translateY(-50%); top: 10.5em; left: 50% !important; max-width: 70%; max-height: 45%; transform-origin: 50% 50%;} .plot {display: none; opacity: 1 !important; font-size: 90%; bottom: 0.5em; -webkit-line-clamp: 2; max-height: 3.3em; overflow: hidden; width: 98vw !important; max-width: 98vw; line-height: 1.45em;} .lorem-ipsum::before { opacity:0; padding-bottom: 0.25em; } .clickable-overlay { background: linear-gradient(0deg, rgb(0% 0% 0%) 0%, rgb(0% 0% 0% / 0.9990234375) 6.25%, rgba(0, 0, 0, 0.99) 12.5%, rgba(0, 0, 0, 0.97) 18.75%, rgba(0, 0, 0, 0.94) 25%, rgba(0, 0, 0, 0.88) 31.25%, rgba(0, 0, 0, 0.79) 37.5%, rgba(0, 0, 0, 0.67) 43.75%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.33) 56.25%, rgba(0, 0, 0, 0.21) 62.5%, rgba(0, 0, 0, 0.12) 68.75%, rgba(0, 0, 0, 0.06) 75%, rgba(0, 0, 0, 0.03) 81.25%, rgba(0, 0, 0, 0.01) 87.5%, rgba(0, 0, 0, 0) 93.75%, rgba(0, 0, 0, 0) 100% ); opacity: 0.8;} .backdrop {left: 0% !important; width: 100% !important; top: 0em;} .lorem-ipsum .full-content { opacity: 1; max-width: 100%;} .lorem-ipsum::before { opacity:1; backdrop-filter: blur(2px); transform: translateX(0);} .clickable-overlay::before { opacity: 0.98; backdrop-filter: blur(0px);} .slide:hover .clickable-overlay::before { opacity: 0.98;} .skip-button {opacity: 1 !important; font-size: 0.9em; top: 1.1em; color: #fff;} .genres {bottom: 4em; left: unset !important; overflow: hidden; max-width: 100vw !important; white-space: nowrap; left: 0; z-index: 8; color: #fff; font-size: 0.7em;} .additional-info {left: 18.5%; top: 5em; text-align: right;} .community-rating {left: 86vw !important; top: 19.45em !important; text-align: left; z-index: 8;   font-size: 0.85em !important;} .critic-rating {font-size: 0.85em !important; left: 70vw !important; top: 19.45em !important; z-index: 8;} .additional-info {left: 18.5%; top: 5em; text-align: left;} .heading {z-index: 0;} .heading::before {display: none;} .video-container {max-width: 0 !important;} .watch-trailer-button {display: flex !important; top: unset !important; bottom: 0.4em; font-size: 0.7em !important; background: #fff9 !important; color: #000e !important; font-weight: 600; transform: translateX(-100%) !important; left: 47% !important;} .slide { box-shadow: none;} .text-container::before { display: none !important;} .buttons-container {display: flex; position: absolute; bottom: 0.6em; left: 0em; width: 100vw; z-index: 10;} .details-button { position: absolute; border: none; border-radius: 5px; padding: 0.5em 1.5em; font-family: "Titillium Web", sans-serif; cursor: pointer; z-index: 10; transition: background-color 0.3s ease; align-items: center; justify-content: center; bottom: 0.4em; font-size: 0.7em !important; background: #fff9; color: #000e; font-weight: 600; transform: translateX(100%) !important; right: 47%; display: flex; padding-right: 2em;} .details-button:hover { background-color: #fffc;} .watch-trailer-button:hover { background-color: #fffc !important;} .fas {padding: 0.5em;}}
+		@media (max-width:1000px) and (orientation:portrait) {.back-button {right:58vw;} .skip-button {right: 0em; top: 42vh !important;} .genres {right: 50vw; position: absolute; max-width: 80vw !important; overflow:hidden; top: unset; transform: translateX(50%); bottom: 6.5em;} .lorem-ipsum {position: absolute; left: unset; bottom: 4.75em;}}
+		@media (max-width:1000px) and (orientation:landscape) {.community-rating {left:89vw !important;} .critic-rating {left:76vw !important;} .back-button {right:70vw;} .skip-button {right: 0em; top: 42vh !important;} .genres {position: absolute; bottom: 6.5em; top: unset; transform: translateX(50%); right: 50vw;} .lorem-ipsum {position: absolute; left: unset; bottom: 4.75em;}}
+		@media (min-width: 1001px) { .logo {max-height: 45%; top: 50vh; max-width: 47em; left: 50%;} transition: transform 0.1s ease, max-height 0.3s ease;} .watch-trailer-button {display: none;} .backdrop {left: 0em; width: 100%; transition: width 0.5s ease, left 0.5s ease, filter 0.8s ease, transform 2s ease;} .genres { left: 8em; z-index: 9; max-width: 39em;} .community-rating {top: 16.45em; left: 31em; font-size: 1em;} .critic-rating { position: absolute; top: 16.45em; left: 26.5em; font-size: 1em;} .back-button {font-size: 1.67em; top: 0.5em; opacity: 0.5; transition: opacity 0.3s ease, background 0.3s ease; padding-left: 0.1em; padding-right: 0.1em; padding-top: 0.1em; border-radius: 50%; box-sizing: border-box; font-style: normal; font-weight: 400; letter-spacing: normal; line-height: 1; text-transform: none; word-wrap: normal; direction: inherit; white-space: nowrap; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; -moz-osx-font-smoothing: grayscale; -webkit-font-feature-settings: "liga"; font-feature-settings: "liga";} .back-button:hover {background: #ffffff70; opacity: 1;} .skip-button {font-size: 1.62em; top: 50vh; transform: translateY(-50%); opacity: 0.5; transition: opacity 0.3s ease, background 0.3s ease; padding-left: 0.3em; padding-right: 0.3em; padding-top: 0.3em; padding-bottom: 0.22em; border-radius: 50%; box-sizing: border-box; font-style: normal; font-weight: 400; letter-spacing: normal; line-height: 1; text-transform: none; word-wrap: normal; direction: inherit; white-space: nowrap; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; -moz-osx-font-smoothing: grayscale; -webkit-font-feature-settings: "liga"; font-feature-settings: "liga";} .skip-button:hover {background: #ffffff70; opacity: 1;} .text-container::before { content: ''; z-index: 5; display: flex; position: absolute; width: 100vw; top: -19.3em; height: 3em; background: linear-gradient(180deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.7) 6.25%, rgba(0, 0, 0, 0.68) 12.5%, rgba(0, 0, 0, 0.66) 18.75%, rgba(0, 0, 0, 0.64) 25%, rgba(0, 0, 0, 0.6) 31.25%, rgba(0, 0, 0, 0.56) 37.5%, rgba(0, 0, 0, 0.51) 43.75%, rgba(0, 0, 0, 0.45) 50%, rgba(0, 0, 0, 0.38) 56.25%, rgba(0, 0, 0, 0.31) 62.5%, rgba(0, 0, 0, 0.22) 68.75%, rgba(0, 0, 0, 0.14) 75%, rgba(0, 0, 0, 0.13) 81.25%, rgba(0, 0, 0, 0) 100% ); opacity: 0.8; backdrop-filter: blur(1px); border-top-right-radius: 1em; border-top-left-radius: 1em; -webkit-mask-image: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.25) 3%, rgba(0, 0, 0, 0.5) 7%, rgba(0, 0, 0, 0.75) 15%, rgba(0, 0, 0, 0.9) 25%, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 1) 100%);} .text-container::after { content: ''; background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.7) 6.25%, rgba(0, 0, 0, 0.68) 12.5%, rgba(0, 0, 0, 0.66) 18.75%, rgba(0, 0, 0, 0.64) 25%, rgba(0, 0, 0, 0.6) 31.25%, rgba(0, 0, 0, 0.56) 37.5%, rgba(0, 0, 0, 0.51) 43.75%, rgba(0, 0, 0, 0.45) 50%, rgba(0, 0, 0, 0.38) 56.25%, rgba(0, 0, 0, 0.31) 62.5%, rgba(0, 0, 0, 0.22) 68.75%, rgba(0, 0, 0, 0.14) 75%, rgba(0, 0, 0, 0.13) 81.25%, rgba(0, 0, 0, 0) 100% ); z-index: 5; display: flex; position: absolute; width: 100vw; border-top-right-radius: 1em; border-top-left-radius: 1em; bottom: 0em; height: 3em; opacity: 0.8; backdrop-filter: blur(1px); -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.25) 3%, rgba(0, 0, 0, 0.5) 7%, rgba(0, 0, 0, 0.75) 15%, rgba(0, 0, 0, 0.9) 25%, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 1) 100%);}}
+		.age-rating { font-weight: 600; font-size: 1.1em;} .additional-info {display: none;}
+		.age-rating span.gb-u, .age-rating span.u { background-color: #078c6d; color: white; text-shadow: 1px 1px 1px rgba(0, 0, 0, 1);}
+		.age-rating span.gb-pg, .age-rating span.pg { background-color: #d7a203; color: white; text-shadow: 1px 1px 1px rgba(0, 0, 0, 1);}
+		.age-rating span.gb-12a, .age-rating span.\31 2A { background-color: #ee7600; color: white;	text-shadow: 1px 1px 1px rgba(0, 0, 0, 1);}
+		.age-rating span.gb-12, .age-rating span.\31 2, .age-rating span.gb-15, .age-rating span.\31 2 { background-color: #e19887; color: #e2002d; border: 0.09em solid white !important; text-shadow: 1px 1px 1px rgba(0, 0, 0, 1);}
+		.age-rating span.pg-13 { background-color: #157c0d; color: white; text-shadow: 1px 1px 1px rgba(0, 0, 0, 1);}
+		.age-rating span.tv-y7, .age-rating span.tv-13, .age-rating span.tv-14, .age-rating span.\31 6, .age-rating span.tv-ma, .age-rating span.tv-y, .age-rating span.tv-g, .age-rating span.tv-pg { background-color: #157c0d; color: white; text-shadow: 1px 1px 1px rgba(0, 0, 0, 1);}
+		.age-rating span.nc-17, .age-rating span.gb-18, .age-rating span.\31 8, .age-rating span.r { background-color: #c10f1f; color: white; text-shadow: 1px 1px 1px rgba(0, 0, 0, 1);}
+		.age-rating span.au-g, .age-rating span.nz-g, .age-rating span.eu-pg, .age-rating span.ca-g, .age-rating span.jp-g, .age-rating span.de-0 { background-color: #078c6d; color: white; text-shadow: 1px 1px 1px rgba(0, 0, 0, 1); }
+		.age-rating span.au-pg, .age-rating span.nz-pg, .age-rating span.eu-12, .age-rating span.ca-pg, .age-rating span.jp-pg12, .age-rating span.de-6 { background-color: #d7a203; color: white; text-shadow: 1px 1px 1px rgba(0, 0, 0, 1); }
+		.age-rating span.au-m, .age-rating span.nz-m, .age-rating span.eu-16, .age-rating span.ca-14a, .age-rating span.jp-r15, .age-rating span.de-12 { background-color: #07b1e0; color: white; text-shadow: 1px 1px 1px rgba(0, 0, 0, 1); }
+		.age-rating span.au-ma15, .age-rating span.nz-r15, .age-rating span.eu-18, .age-rating span.ca-18a, .age-rating span.jp-r18, .age-rating span.de-16 { background-color: #fc9712; color: white; border: 0.09em solid white !important; text-shadow: 1px 1px 1px rgba(0, 0, 0, 1); }
+		.age-rating span.au-r18, .age-rating span.nz-r18, .age-rating span.ca-r, .age-rating span.jp-r18+, .age-rating span.de-18 { background-color: #c10f1f; color: white; text-shadow: 1px 1px 1px rgba(0, 0, 0, 1); }
+		.video-container {overflow: visible;}
+		.watch-trailer-button { position: absolute; border: none; border-radius: 5px; padding: 0.5em 1em; font-size: 0.9em; font-family: "Titillium Web", sans-serif; cursor: pointer; z-index: 10; transition: background-color 0.3s ease; align-items: center; justify-content: center; padding-right: 1.5em;}
+		.watch-trailer-button .fa-play { margin-right: 0.5em;}
+		.slide { position: relative; width: 100%; overflow: hidden; opacity: 1; transition: opacity 0.31s ease-in-out, font-size 1s ease; }
+		.fade-in { opacity: 0; visibility: hidden; transition: opacity 0.31s ease-in-out;}
+		.fade-in-active { opacity: 1; visibility: visible;}
+		.fade-out {	opacity: 0;}
+		.backdrop {	transition: opacity 0.3s ease-in-out, width 0.5s ease, transform 1.5s ease, filter 1s ease;}
+		@media (min-width: 2000px) { .slide {font-size: 133%;} .backdrop {} .age-rating {} .skip-button {top: 38vh;} .video-container {} .text-container::before {} .genres {} .lorem-ipsum {}  .logo {top: 38vh;}}
+		@media (min-width: 3000px) { .slide {font-size: 200%;} .age-rating {} .skip-button {} .backdrop {} .text-container::before {} .genres {} .lorem-ipsum {}}
+        	#video-overlay { position: fixed; top: 13vh; left: 0vw; width: 100%; height: 140vh; background-color: rgb(0, 0, 0); z-index: 1000; display: flex; background-size: cover; padding: 6vh; padding-top: 10vh; margin-top: -10vh;}
+        	#video-overlay-content { position: relative; width: 90%; max-width: 100%; height: 60%; background-color: #000;}
+        	#close-overlay { position: absolute; top: -1em; right: 0em; font-size: 1.5em; color: #7b7b7b; cursor: pointer;} 
+		#countdown-bar-container { display: none; position: absolute; left: 0%; top: 3.1em; width: 110%; height: 0.15em !important; background-color: rgba(0,0,0,0); z-index: 10;}
+		#countdown-bar { height: 100%; width: 0%; background-color: #ffffff; opacity: 0.5; transition: width 0.1s linear; border-radius: 1em;}
+		.video-player { mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.25) 3%, rgba(0, 0, 0, 0.5) 7%, rgba(0, 0, 0, 0.75) 15%, rgba(0, 0, 0, 0.9) 25%, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 1) 100%);
+		-webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.25) 3%, rgba(0, 0, 0, 0.5) 7%, rgba(0, 0, 0, 0.75) 15%, rgba(0, 0, 0, 0.9) 25%, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 1) 100%); transition: mask-image 5s ease, -webkit-mask-image 5s ease;}
+		.video-container:hover .video-player { mask-image: none; -webkit-mask-image: none;}
+		.text-container { z-index: 5; display: flex; position: absolute; width: 100vw; bottom: 0em; height: 2.7em; opacity: 1;}
+		.material-symbols-outlined { vertical-align: middle; font-size: 0.85em; opacity: 0.75; }
+
     </style>
 </head>
 <body>
-    <div id="slides-container"></div>
+	<div id="slides-container"></div>
+	    <div id="video-overlay" style="display: none;">
+        <div id="video-overlay-content">
+            <span id="close-overlay" class="fas fa-times"></span>
+            <iframe id="trailer-video" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </div>
     <script>
-        let title = 'Spootlight', moviesSeriesBoth = 3, shuffleInterval = 10000, plotMaxLength = 350, userId = '0e0755005f074a59bc0108cc2c3e650b', token = 'de81a85d55024d7b9fa7b11031de7539', useTrailers = true;  // Changeable variables
-        let isChangingSlide = false, player = null, slideChangeTimeout = null, isHomePageActive = false;
-        let currentLocation = window.top.location.href;
- 
-        function createElem(tag, className, textContent, src, alt) {
-            const elem = document.createElement(tag);
-            if (className) elem.className = className;
-            if (textContent) elem.textContent = textContent;
-            if (src) elem.src = src;
-            if (alt) elem.alt = alt;
-            return elem;
-        }
- 
-        function truncateText(text, maxLength) {
-            return text.length > maxLength ? text.substr(0, maxLength) + '...' : text;
-        }
- 
-        function cleanup() {
-            if (player) {
-                player.destroy();
-                player = null;
-            }
-            clearSlideChangeTimeout();
-            const container = document.getElementById('slides-container');
-            if (container) container.innerHTML = '';
-        }
- 
-		function createSlideElement(movie, hasVideo = false) {
-			cleanup(); // Ensure cleanup before creating a new slide
+		let title = 'Spotlight', moviesSeriesBoth = 3, shuffleInterval = 15000, plotMaxLength = 550, token = 'de81a85d55024d7b9fa7b11031de7539', useTrailers = true;
+		let isChangingSlide = false, player = null, slideChangeTimeout = null, isHomePageActive = false;
+		let currentLocation = window.top.location.href;
+		let movieList = [], currentMovieIndex = 0;
+
+		const createElem = (tag, className, textContent, src, alt) => {
+			const elem = document.createElement(tag);
+			if (className) elem.className = className;
+			if (textContent) elem.textContent = textContent;
+			if (src) elem.src = src;
+			if (alt) elem.alt = alt;
+			return elem;
+		};
+		
+        // Check for screen size below 1000px
+        function isMobile() {
+            return window.innerWidth <= 1000;
+        }	
+
+		const truncateText = (text, maxLength) => text.length > maxLength ? text.substr(0, maxLength) + '...' : text;
+
+		const cleanup = () => {
+			if (player) { player.destroy(); player = null; }
+			clearTimeout(slideChangeTimeout);
+			const container = document.getElementById('slides-container');
+			if (container) container.innerHTML = '';
+		};
+
+		const createSlideElement = (movie, hasVideo = false) => {
+			cleanup();
 			const container = document.getElementById('slides-container');
 			const slide = createElem('div', 'slide');
- 
-			slide.appendChild(createElem('img', 'backdrop', null, `/Items/${movie.Id}/Images/Backdrop/0`, 'Backdrop'));
-			slide.appendChild(createElem('img', 'logo', null, `/Items/${movie.Id}/Images/Logo`, 'Logo'));
+			['backdrop', 'logo'].forEach(type => slide.appendChild(createElem('img', type, null, `/Items/${movie.Id}/Images/${type.charAt(0).toUpperCase() + type.slice(1)}${type === 'backdrop' ? '/0' : ''}`, type)));
 			slide.appendChild(createElem('div', 'heading', title));
- 
+
 			const textContainer = createElem('div', 'text-container');
-			// Format premiere year
 			const premiereYear = movie.PremiereDate ? new Date(movie.PremiereDate).getFullYear() : 'Unknown';
-			let additionalInfo;
- 
-			if (movie.Type === 'Series') {
-				// Use SeasonCount for TV shows
-				additionalInfo = movie.ChildCount ? `${movie.ChildCount} Season${movie.ChildCount > 1 ? 's' : ''}` : 'Unknown Seasons';
-			} else {
-				// Convert runtime from ticks to minutes for movies
-				const runtimeMinutes = movie.RunTimeTicks ? Math.round(movie.RunTimeTicks / 600000000) : 'Unknown';
-				additionalInfo = runtimeMinutes !== 'Unknown' ? `${runtimeMinutes} min` : 'Unknown Runtime';
+			const additionalInfo = movie.Type === 'Series' ? 
+				(movie.ChildCount ? `${movie.ChildCount} Season${movie.ChildCount > 1 ? 's' : ''}` : 'Unknown Seasons') : 
+				(movie.RunTimeTicks ? `${Math.round(movie.RunTimeTicks / 600000000)} min` : 'Unknown Runtime');
+
+			let loremText = `
+				<span style="background: transparent; padding-left: 0.5em; padding-right: 0.5em; padding-top: 0.05em; padding-bottom: 0.05em; margin-left: 1em;">${additionalInfo}</span> 
+				<span style="background: transparent; padding-left: 0.5em; padding-right: 0.5em; padding-top: 0.05em; padding-bottom: 0.05em; margin-left: 1em;">${premiereYear}</span> `;
+
+			if (movie.CommunityRating) {
+				loremText += `<span style="background: transparent; padding-left: 0.5em; padding-right: 0.5em; padding-top: 0.05em; padding-bottom: 0.05em; margin-left: 1em;">
+				<i class="star-icon fas fa-star"></i> ${movie.CommunityRating.toFixed(1)}
+				</span> `;
 			}
- 
-			// Check if the critic rating exists
-			const criticRating = movie.CriticRating ? `${movie.CriticRating}%` : null;
- 
-			// Check if the community rating exists and format it to one decimal place
-			const communityRating = movie.CommunityRating ? `${movie.CommunityRating.toFixed(1)}` : null;
- 
-			// Combine into the text content with conditional parts
-			let loremText = `${additionalInfo} | ${premiereYear} `;
-			if (communityRating) {	
-			loremText += `| <i class="star-icon fas fa-star"></i> ${communityRating}  `;
+			if (movie.CriticRating) {
+				loremText += `<span style="background: transparent; padding-left: 0.5em; padding-right: 0.5em; padding-top: 0.05em; padding-bottom: 0.05em; margin-left: 1em;">
+				<img src="https://i.imgur.com/rMvyQMt.png" alt="Rotten Tomatoes" style="width: 1.05em; height: 1.25em; font-size: 0.9em; padding-right: 0.1em; margin-left: -0.1em; vertical-align: bottom;"> 
+				${movie.CriticRating}%</span>`;
 			}
-			if (criticRating) {
-				loremText += `<img src="https://i.imgur.com/iMfwDk7.png" alt="Rotten Tomatoes" style="width: 1.2em; height: 1.2em; padding-left: 0.5em; vertical-align: sub;"> ${criticRating}`;
+			
+			// Age Rating
+			
+			const ageRating = movie.OfficialRating ? movie.OfficialRating : 'NR';
+			const ratingClass = ageRating.toLowerCase().replace(/ /g, '-');
+	
+			const ageRatingDiv = createElem('div', 'age-rating');
+			const ageRatingSpan = createElem('span', ratingClass, ageRating);
+			ageRatingSpan.style.cssText = 'border: 0.09em solid currentColor; border-radius: .1em; padding: 0.2em; padding-top: 0.125em; padding-bottom: 0.26em; display: inline-block; text-align: center; line-height: 0.8em;';
+			ageRatingDiv.appendChild(ageRatingSpan);
+			slide.appendChild(ageRatingDiv);
+			
+	// Genres Section
+	const genresDiv = createElem('div', 'genres');
+	if (movie.Genres && movie.Genres.length > 0) {
+		movie.Genres.forEach((genre, index) => {
+			const genreElem = createElem('span', 'genre-item');
+			genreElem.textContent = genre;
+			genreElem.style.backgroundColor = 'transparent';
+			genreElem.style.paddingLeft = '0.5em';
+			genreElem.style.paddingRight = '0.5em';
+			genreElem.style.paddingTop = '0.1em';
+			genreElem.style.paddingBottom = '0.1em';
+			genreElem.style.color = 'white';
+			genreElem.style.borderRadius = '0em';
+			genreElem.style.marginRight = '0em';
+			genresDiv.appendChild(genreElem);
+
+			if (index < movie.Genres.length - 1) {
+				const separator = createElem('span', 'material-symbols-outlined');
+				separator.textContent = 'stat_0'; // The separator symbol
+				genresDiv.appendChild(separator);
 			}
- 
-			// Create a div for the lorem text and use innerHTML to include HTML content
+		});
+	} else {
+		genresDiv.textContent = 'Genres: N/A';
+	}
+	slide.appendChild(genresDiv);
+
 			const loremDiv = createElem('div', 'lorem-ipsum');
 			loremDiv.innerHTML = loremText;
- 
 			textContainer.appendChild(loremDiv);
 			textContainer.appendChild(createElem('div', 'plot', truncateText(movie.Overview, plotMaxLength)));
 			slide.appendChild(textContainer);
- 
-			const skipButton = createElem('div', 'skip-button', '>');
-			skipButton.onclick = (e) => {
-				e.stopPropagation();
-				fetchRandomMovie();
-			};
+
+			const backButton = createElem('div', 'back-button');
+			const backIcon = createElem('i', 'material-icons');
+			backIcon.textContent = 'chevron_left';
+			const skipButton = createElem('div', 'skip-button');
+			const skipIcon = createElem('i', 'material-icons');
+			skipIcon.textContent = 'chevron_right';
+			
+			backButton.appendChild(backIcon);
+			skipButton.appendChild(skipIcon);
+			
+			skipIcon.onclick = (e) => { e.stopPropagation(); fetchRandomMovie(); };
+			slide.appendChild(backButton);
 			slide.appendChild(skipButton);
- 
-			const overlay = createElem('div', 'clickable-overlay');
-			overlay.onclick = () => {
-				window.top.location.href = `/#!/details?id=${movie.Id}`;
+			
+			// Create Details buttons
+			const buttonsContainer = createElem('div', 'buttons-container');
+
+			// Details Button
+			const detailsButton = createElem('button', 'details-button');
+			const playIcon = createElem('i', 'fas fa-play');
+			detailsButton.appendChild(playIcon);
+			detailsButton.appendChild(document.createTextNode(' Play'));
+			detailsButton.onclick = (e) => {
+				e.stopPropagation();
+				window.top.location.href = `/#!/details?id=${movie.Id}`; // Navigate to details page
 			};
+
+			// Append buttons to the container
+			buttonsContainer.appendChild(detailsButton);
+			slide.appendChild(buttonsContainer);			
+
+			const overlay = createElem('div', 'clickable-overlay');
+			overlay.onclick = () => window.top.location.href = `/#!/details?id=${movie.Id}`;
 			slide.appendChild(overlay);
- 
-			if (useTrailers && hasVideo && movie.RemoteTrailers && movie.RemoteTrailers.length > 0) {
-				const trailerUrl = movie.RemoteTrailers[0].Url;
-				const videoId = new URL(trailerUrl).searchParams.get('v');
- 
+			
+            if (hasVideo && movie.RemoteTrailers && movie.RemoteTrailers.length > 0) {
+                const trailerUrl = movie.RemoteTrailers[0].Url;
+                const watchTrailerButton = createElem('button', 'watch-trailer-button');
+                const trailerIcon = document.createElement('i');
+                trailerIcon.className = 'fas fa-film';
+                watchTrailerButton.appendChild(trailerIcon);
+                watchTrailerButton.appendChild(document.createTextNode('Trailer'));
+
+                watchTrailerButton.onclick = (e) => {
+                    e.stopPropagation();
+                    if (isMobile()) {
+                        // Show the video in an overlay for mobile
+                        showVideoOverlay(trailerUrl);
+                    } else {
+                        // Open the trailer in a new tab for desktop
+                        window.open(trailerUrl, '_blank');
+                    }
+                };
+
+                buttonsContainer.appendChild(watchTrailerButton);
+            }
+
+			if (useTrailers && hasVideo && movie.RemoteTrailers?.length > 0) {
+				const videoId = new URL(movie.RemoteTrailers[0].Url).searchParams.get('v');
 				const videoContainer = createElem('div', 'video-container');
 				const videoElement = createElem('div', 'video-player');
 				videoContainer.appendChild(videoElement);
 				slide.appendChild(videoContainer);
- 
+
 				player = new YT.Player(videoElement, {
 					height: '100%',
 					width: '100%',
-					videoId: videoId,
+					videoId,
 					events: {
 						'onReady': event => {
 							event.target.playVideo();
-							document.querySelector('.backdrop').style.width = 'calc(100% - 505px)';
-							document.querySelector('.plot').style.width = 'calc(100% - 505px)';
-							document.querySelector('.lorem-ipsum').style.width = 'calc(100% - 505px)';
-							videoContainer.style.width = '505px';
 						},
 						'onStateChange': event => {
-							if (event.data === YT.PlayerState.ENDED) {
+							if (event.data === YT.PlayerState.PLAYING) {
+								// Only show when YT video is successfully playing
+								const backdrop = document.querySelector('.backdrop');
+								if (backdrop) {
+									backdrop.style.width = 'calc(100% - 23vw)';
+									backdrop.style.left = '0vw';
+								}
+
+								const plot = document.querySelector('.plot');
+								if (plot) plot.style.width = 'calc(100% - 36.4vw)';
+
+								const loremIpsum = document.querySelector('.lorem-ipsum');
+								if (loremIpsum) loremIpsum.style.paddingRight = '34.4vw';
+
+								const logo = document.querySelector('.logo');
+								if (logo) logo.style.left = 'calc(50% - 14.2vw)';
+
+								videoContainer.style.width = '34.4vw';
+							} else if (event.data === YT.PlayerState.ENDED) {
 								setTimeout(fetchRandomMovie, 100);
 							}
 						},
 						'onError': () => {
-							console.error(`YouTube playback prevented for '${movie.Name}'`);
+							console.error(`YouTube prevented playback of '${movie.Name}'`);
 							if (player) {
 								player.destroy();
 								player = null;
 							}
- 
+
+							// Reset style when a YT error occurs
 							const backdrop = document.querySelector('.backdrop');
-							const plot = document.querySelector('.plot');
-							const videoContainer = document.querySelector('.video-container');
-							const lorembox = document.querySelector('.lorem-ipsum');
- 
 							if (backdrop) backdrop.style.width = '100%';
-							if (plot) plot.style.width = '100%';
-							if (lorembox) lorembox.style.width = '100%';
-							if (videoContainer) videoContainer.style.width = '0';
- 
+
+							const plot = document.querySelector('.plot');
+							if (plot) plot.style.width = '98%';
+
+							const loremIpsum = document.querySelector('.lorem-ipsum');
+							if (loremIpsum) loremIpsum.style.paddingRight = '0';
+
+							const logo = document.querySelector('.logo');
+							if (logo) logo.style.left = '50%';
+
+							videoContainer.style.width = '0';
+
 							startSlideChangeTimer();
 						}
 					}
@@ -162,113 +311,207 @@
 			} else {
 				startSlideChangeTimer();
 			}
- 
+
+
 			container.innerHTML = '';
 			container.appendChild(slide);
+		};
+		
+				function addSwipeListeners(slide) {
+			let startX, startY, distX, distY;
+			const threshold = 50;
+			const restraint = 100;
+
+			slide.addEventListener('touchstart', e => {
+				const touch = e.touches[0];
+				startX = touch.clientX;
+				startY = touch.clientY;
+			});
+
+			slide.addEventListener('touchmove', e => {
+				const touch = e.touches[0];
+				distX = touch.clientX - startX;
+				distY = touch.clientY - startY;
+			});
+
+			slide.addEventListener('touchend', () => {
+				if (Math.abs(distX) > threshold && Math.abs(distY) < restraint) {
+					if (distX > 0) {
+						console.log('Swipe Right');
+					} else {
+						console.log('Swipe Left');
+						fetchRandomMovie();
+					}
+				}
+				distX = distY = 0;
+			});
 		}
- 
-        function startSlideChangeTimer() {
-            clearSlideChangeTimeout();
-            slideChangeTimeout = setTimeout(fetchRandomMovie, shuffleInterval);
-        }
- 
-        function clearSlideChangeTimeout() {
-            if (slideChangeTimeout) {
-                clearTimeout(slideChangeTimeout);
-                slideChangeTimeout = null;
-            }
-        }
- 
-        function checkBackdropAndLogo(movie) {
-            const backdropUrl = `/Items/${movie.Id}/Images/Backdrop/0`;
-            const logoUrl = `/Items/${movie.Id}/Images/Logo`;
- 
-            Promise.all([
-                fetch(backdropUrl, { method: 'HEAD' }).then(response => response.ok),
-                fetch(logoUrl, { method: 'HEAD' }).then(response => response.ok)
-            ]).then(([backdropExists, logoExists]) => {
-                if (backdropExists && logoExists) {
-                    createSlideElement(movie, true);
-                } else {
-                    fetchRandomMovie();
+		
+        // Show the video overlay
+        function showVideoOverlay(trailerUrl) {
+            const videoOverlay = document.getElementById('video-overlay');
+            const videoFrame = document.getElementById('trailer-video');
+            const closeOverlay = document.getElementById('close-overlay');
+
+            // Extract video ID from trailer URL
+            const videoId = new URL(trailerUrl).searchParams.get('v');
+            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+
+            // Set iframe's source to trailer URL
+            videoFrame.src = embedUrl;
+
+            // Show the overlay
+            videoOverlay.style.display = 'block';
+
+			// Pause the slide timer when the video overlay is open
+			clearSlideChangeTimeout();
+
+            // Close the overlay when the X is clicked
+            closeOverlay.onclick = () => {
+                videoOverlay.style.display = 'none';
+                videoFrame.src = '';  // Stop the video
+            };
+
+            // Close the overlay when clicking outside content
+            window.onclick = (event) => {
+                if (event.target === videoOverlay) {
+                    videoOverlay.style.display = 'none';
+                    videoFrame.src = '';
                 }
-            }).catch(() => fetchRandomMovie());
-        }
- 
-		function fetchRandomMovie() {
+            };
+        }	
+
+		// Close video overlay and restart slide timer
+		function closeVideoOverlay() {
+			const videoOverlay = document.getElementById('video-overlay');
+			const videoFrame = document.getElementById('trailer-video');
+
+			// Hide overlay
+			videoOverlay.style.display = 'none';
+
+			// Reset the iframe source
+			videoFrame.src = '';
+
+			// Restart slide change timer when video overlay is closed
+			startSlideChangeTimer();
+		}		
+
+		function clearSlideChangeTimeout() {
+			if (slideChangeTimeout) {
+				clearTimeout(slideChangeTimeout);
+				slideChangeTimeout = null;
+			}
+		}
+
+		const startSlideChangeTimer = () => { clearTimeout(slideChangeTimeout); slideChangeTimeout = setTimeout(fetchRandomMovie, shuffleInterval); };
+
+		const checkBackdropAndLogo = movie => {
+			Promise.all(['/Images/Backdrop/0', '/Images/Logo'].map(url => 
+				fetch(`/Items/${movie.Id}${url}`, { method: 'HEAD' }).then(response => response.ok)
+			)).then(([backdropExists, logoExists]) => 
+				backdropExists && logoExists ? createSlideElement(movie, true) : fetchRandomMovie()
+			).catch(() => fetchRandomMovie());
+		};
+
+		const readCustomList = () => 
+			fetch('list.txt?' + new Date().getTime())
+				.then(response => response.ok ? response.text() : null)
+				.then(text => {
+					if (!text) return null;
+					const lines = text.split('\n').filter(Boolean);
+					title = lines.shift() || title;
+					return lines.map(line => line.trim().substring(0, 32));
+				})
+				.catch(() => null);
+
+		const fetchRandomMovie = () => {
 			if (isChangingSlide) return;
 			isChangingSlide = true;
- 
-			const itemTypes = moviesSeriesBoth === 1 ? 'Movie' : (moviesSeriesBoth === 2 ? 'Series' : 'Movie,Series');
-			const headers = { 'Authorization': `MediaBrowser Client="Jellyfin Web", Device="YourDeviceName", DeviceId="YourDeviceId", Version="YourClientVersion", Token="${token}"` };
- 
-			fetch(`/Users/${userId}/Items?IncludeItemTypes=${itemTypes}&Recursive=true&Limit=1&SortBy=random&Fields=Id,Overview,RemoteTrailers,PremiereDate,RunTimeTicks,ChildCount`, { headers })
-				.then(response => response.json())
-				.then(data => {
-					const movie = data.Items[0];
-					if (movie) checkBackdropAndLogo(movie);
-					else throw new Error('No items found');
-				})
-				.catch(error => {
-					console.error('Failed to fetch movie:', error);
-					startSlideChangeTimer();
-				})
-				.finally(() => {
-					isChangingSlide = false;
+			if (movieList.length === 0) {
+				readCustomList().then(list => {
+					if (list) { movieList = list; currentMovieIndex = 0; }
+					fetchNextMovie();
 				});
-		}
- 
-        function checkNavigation() {
-            const newLocation = window.top.location.href;
-            if (newLocation !== currentLocation) {
-                currentLocation = newLocation;
-                if (isHomePage(newLocation)) {
-                    if (!isHomePageActive) {
-                        console.log("Returning to homepage, reactivating slideshow");
-                        isHomePageActive = true;
-                        cleanup();
-                        fetchRandomMovie();
-                    }
-                } else {
-                    if (isHomePageActive) {
-                        console.log("Leaving homepage, cleaning up slideshow");
-                        isHomePageActive = false;
-                        cleanup();
-                    }
-                }
-            }
-        }
+			} else fetchNextMovie();
+		};
 
-        function isHomePage(url) {
-            // Adjust this function based on your Jellyfin URL structure
-            return url.includes('/home') || url.endsWith('/web/') || url.endsWith('/web/index.html');
-        }
+		const fetchNextMovie = () => {
+			const fetchCurrentUserId = () => 
+				fetch('/Sessions', {
+					headers: { 'Authorization': `MediaBrowser Client="Jellyfin Web", Device="YourDeviceName", DeviceId="YourDeviceId", Version="YourClientVersion", Token="${token}"` }
+				})
+				.then(response => response.json())
+				.then(sessions => {
+					const currentSession = sessions.find(session => session.UserId);
+					return currentSession ? currentSession.UserId : null;
+				})
+				.catch(() => null);
 
-        function checkScreenWidth() {
-            if (window.innerWidth < 1001) {
-                useTrailers = false;
-            }
-        }
+			fetchCurrentUserId().then(currentUserId => {
+				if (!currentUserId) {
+					console.error('Could not retrieve the current user ID.');
+					return;
+				}
 
-        // Check navigation more frequently
-        setInterval(checkNavigation, 100); // Check every 100ms
+				const headers = { 'Authorization': `MediaBrowser Client="Jellyfin Web", Device="YourDeviceName", DeviceId="YourDeviceId", Version="YourClientVersion", Token="${token}"` };
 
-        // Init
-        document.addEventListener('DOMContentLoaded', () => {
-            checkScreenWidth();
-            if (isHomePage(window.top.location.href)) {
-                isHomePageActive = true;
-                fetchRandomMovie();
-            }
-        });
+				if (movieList.length > 0) {
+					if (currentMovieIndex >= movieList.length) currentMovieIndex = 0;
+					const movieId = movieList[currentMovieIndex];
+					currentMovieIndex++;
 
-        window.addEventListener('unload', cleanup);
+					fetch(`/Users/${currentUserId}/Items/${movieId}?Fields=Overview,RemoteTrailers,PremiereDate,RunTimeTicks,ChildCount,Genres`, { headers })
+						.then(response => response.json())
+						.then(checkBackdropAndLogo)
+						.catch(() => startSlideChangeTimer())
+						.finally(() => { isChangingSlide = false; });
+				} else {
+					const itemTypes = moviesSeriesBoth === 1 ? 'Movie' : (moviesSeriesBoth === 2 ? 'Series' : 'Movie,Series');
+					fetch(`/Users/${currentUserId}/Items?IncludeItemTypes=${itemTypes}&Recursive=true&Limit=1&SortBy=random&Fields=Id,Overview,RemoteTrailers,PremiereDate,RunTimeTicks,ChildCount,Genres`, { headers })
+						.then(response => response.json())
+						.then(data => { if (data.Items[0]) checkBackdropAndLogo(data.Items[0]); })
+						.catch(() => startSlideChangeTimer())
+						.finally(() => { isChangingSlide = false; });
+				}
+			});
+		};
 
-        // Listen for popstate events (back/forward navigation)
-        window.addEventListener('popstate', () => {
-            checkNavigation();
-        });
+		const checkNavigation = () => {
+			const newLocation = window.top.location.href;
+			if (newLocation !== currentLocation) {
+				currentLocation = newLocation;
+				const isHomePage = url => url.includes('/home') || url.endsWith('/web/') || url.endsWith('/web/index.html');
+				if (isHomePage(newLocation)) {
+					if (!isHomePageActive) {
+						console.log("Returning to homepage, reactivating slideshow");
+						isHomePageActive = true;
+						cleanup();
+						fetchRandomMovie();
+					}
+				} else if (isHomePageActive) {
+					console.log("Leaving homepage, cleaning up slideshow");
+					isHomePageActive = false;
+					cleanup();
+				}
+			}
+		};
 
+		setInterval(checkNavigation, 100);
+
+		document.addEventListener('DOMContentLoaded', () => {
+			if (window.innerWidth < 1001) useTrailers = false;
+			const isHomePage = url => url.includes('/home') || url.endsWith('/web/') || url.endsWith('/web/index.html');
+			if (isHomePage(window.top.location.href)) {
+				isHomePageActive = true;
+				readCustomList().then(list => {
+					if (list) { movieList = list; currentMovieIndex = 0; }
+					fetchRandomMovie();
+				});
+			}
+		});
+
+		window.addEventListener('unload', cleanup);
+		window.addEventListener('popstate', checkNavigation);
     </script>
     <script src="https://www.youtube.com/iframe_api"></script>
 </body>
