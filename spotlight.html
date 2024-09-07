@@ -1,20 +1,32 @@
 <html>
 <head>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <title>Spotlight - A Jellyfin UI Enhancement v2.7.2</title>
+    <!-- Font Awesome for star icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Spotlight - A Jellyfin UI Enhancement v3.2.1</title>
     <style>
         body { margin: 0; padding: 0; overflow: hidden; }
-        .slide { position: relative; width: 100vw; height: 100vh; box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); cursor: pointer; }
+        #slides-container { position: relative; width: 100vw; height: 100vh; }
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            filter: blur(5px);
+            transition: opacity 1.3s ease, filter 1.3s ease;
+        }
+        .slide.visible {
+            opacity: 1;
+            filter: blur(0px);
+        }
         .backdrop { position: absolute; top: 50px; left: 0; width: 100%; height: calc(100% - 50px); object-fit: cover; object-position: center 25%; border-radius: 5px; z-index: 1; transition: width 0.5s ease; }
         .logo { position: absolute; top: 55%; left: 23%; transform: translateY(-50%) translateX(-50%) !important; max-height: 50%; max-width: 30%; width: auto; z-index: 5; transition: top 0.5s ease, transform 2.5s ease; text-shadow: -2px 2px 4px rgba(0, 0, 0, 0.5); filter: drop-shadow(1px 1px 1px); }
         .heading { position: absolute; top: 0; left: 0; width: 100%; height: 50px; background-color: transparent; font-family: "Titillium Web", sans-serif; color: #D3D3D3; font-size: 22px; display: flex; align-items: center; justify-content: flex-start; z-index: 2; padding: 10px; box-sizing: border-box; }
         .video-container { position: absolute; right: 0; top: 50px; width: 0; height: calc(100% - 50px); overflow: hidden; z-index: 0; transition: width 0.5s ease; }
         .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        .clickable-overlay { position: absolute; top: 50px; left: 0; width: calc(100% - 50px); height: calc(100% - 50px); z-index: 7; cursor: pointer; background: linear-gradient(140deg, rgba(0, 0, 0, 0.89) 0%, rgba(0, 0, 0, 0.69) 6.25%, rgba(0, 0, 0, 0.52) 12.5%, rgba(0, 0, 0, 0.39) 18.75%, rgba(0, 0, 0, 0.28) 25%, rgba(0, 0, 0, 0.2) 31.25%, rgba(0, 0, 0, 0.14) 37.5%, rgba(0, 0, 0, 0.09) 43.75%, rgba(0, 0, 0, 0.05) 50%, rgba(0, 0, 0, 0.03) 56.25%, rgba(0, 0, 0, 0.02) 62.5%, rgba(0, 0, 0, 0.01) 68.75%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0) 81.25%, rgba(0, 0, 0, 0) 87.5%, rgba(0, 0, 0, 0) 93.75%, rgba(0, 0, 0, 0) 100%); }
-        .lorem-ipsum { position: absolute; top: 2.0em; width: 100%; text-align: right; font-family: "Titillium Web", sans-serif; font-size: 1.4em; text-shadow: 2px 2px 20px rgba(0, 0, 0, 1); opacity: 0; transition: opacity 0.3s ease, width 0.5s ease; color: #ecf0f1; z-index: 4; box-sizing: border-box; line-height: 1.75em; padding-right: 10px; }
-        .plot { position: absolute; bottom: 0; left: 0; right: 0; color: white; font-family: "Titillium Web", sans-serif; font-size: 1.1em; font-style: italic; background: linear-gradient(0deg, rgb(0% 0% 0% / 0.86) 0%, rgb(0% 0% 0% / 0.8566406249999999) 6.25%, rgb(0% 0% 0% / 0.8465625) 12.5%, rgb(0% 0% 0% / 0.829765625) 18.75%, rgb(0% 0% 0% / 0.80625) 25%, rgb(0% 0% 0% / 0.776015625) 31.25%, rgb(0% 0% 0% / 0.7390625) 37.5%, rgb(0% 0% 0% / 0.6953906249999999) 43.75%, rgb(0% 0% 0% / 0.645) 50%, rgb(0% 0% 0% / 0.587890625) 56.25%, rgb(0% 0% 0% / 0.5240625) 62.5%, rgb(0% 0% 0% / 0.453515625) 68.75%, rgb(0% 0% 0% / 0.37625) 75%, rgb(0% 0% 0% / 0.292265625) 81.25%, rgb(0% 0% 0% / 0.20156249999999998) 87.5%, rgb(0% 0% 0% / 0.10414062499999999) 93.75%, rgb(0% 0% 0% / 0) 100%); padding: 10px; border-radius: 0.2em; z-index: 4; box-sizing: border-box; transition: width 0.5s ease; padding-bottom: 3px; padding-top: 0.5em; line-height: 1.3em; text-shadow: 1px 1px 4px rgba(0, 0, 0, 1); mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 100%); -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 100%); }
+        .clickable-overlay { position: absolute; top: 50px; left: 0; width: calc(100% - 50px); height: calc(100% - 50px); z-index: 7; cursor: pointer; background: linear-gradient(140deg, rgba(0, 0, 0, 0.89) 0%, rgba(0, 0, 0, 0.69) 6.25%, rgba(0, 0, 0, 0.52) 12.5%, rgba(0, 0, 0, 0.39) 18.75%, rgba(0, 0, 0, 0.28) 25%, rgba(0, 0, 0, 0.2) 31.25%, rgba(0, 0, 0, 0.14) 37.5%, rgba(0, 0, 0, 0.09) 43.75%, rgba(0, 0, 0, 0.05) 50%, rgba(0, 0, 0, 0.03) 56.25%, rgba(0, 0, 0, 0.02) 62.5%, rgba(0, 0, 0, 0.01) 68.75%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0) 81.25%, rgba(0, 0, 0, 0) 87.5%, rgba(0, 0, 0, 0) 93.75%, rgba(0, 0, 0, 0) 100% ); z-index: 10; }
+        .lorem-ipsum { position: absolute; top: 2.0em; width: 100%; text-align: right; font-family: "Titillium Web", sans-serif; font-size: 1.4em; text-shadow: 2px 2px 20px rgba(0, 0, 0, 1); opacity: 0; transition: opacity 0.3s ease, width 0.5s ease; color: #ecf0f1; z-index: 4; box-sizing: border-box; line-height: 1.75em; padding-right: 10px;}
+        .plot { position:absolute; bottom:0; left:0; right:0; color:white; font-family:"Titillium Web", sans-serif; font-size:1.1em; font-style:italic; background:linear-gradient(0deg, rgb(0% 0% 0% / 0.86) 0%, rgb(0% 0% 0% / 0.8566406249999999) 6.25%, rgb(0% 0% 0% / 0.8465625) 12.5%, rgb(0% 0% 0% / 0.829765625) 18.75%, rgb(0% 0% 0% / 0.80625) 25%, rgb(0% 0% 0% / 0.776015625) 31.25%, rgb(0% 0% 0% / 0.7390625) 37.5%, rgb(0% 0% 0% / 0.6953906249999999) 43.75%, rgb(0% 0% 0% / 0.645) 50%, rgb(0% 0% 0% / 0.587890625) 56.25%, rgb(0% 0% 0% / 0.5240625) 62.5%, rgb(0% 0% 0% / 0.453515625) 68.75%, rgb(0% 0% 0% / 0.37625) 75%, rgb(0% 0% 0% / 0.292265625) 81.25%, rgb(0% 0% 0% / 0.20156249999999998) 87.5%, rgb(0% 0% 0% / 0.10414062499999999) 93.75%, rgb(0% 0% 0% / 0) 100%); padding:10px; border-radius:0.2em; z-index:4; box-sizing:border-box; transition:width 0.5s ease; padding-bottom:3px; padding-top:0.5em; line-height:1.3em; text-shadow:1px 1px 4px rgba(0, 0, 0, 1); mask-image:linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 100%); -webkit-mask-image:linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 100%); }
         .slide:hover .logo { transform: translateY(-50%) translateX(-50%) scale(1.35) !important; }
         .slide:hover .lorem-ipsum { opacity: 1; }
         .star-icon { color: gold; font-size: 1em; margin-right: 0em; }
@@ -28,28 +40,20 @@
     <div id="slides-container"></div>
     <div class="heading" id="titleHeading">Spotlight</div>
     <div class="emby-scrollbuttons">
-        <button id="leftButton" class="emby-scrollbuttons-button paper-icon-button-light" type="button"
-            disabled tabindex="0">
+        <button id="leftButton" class="emby-scrollbuttons-button paper-icon-button-light" type="button" disabled tabindex="0">
             <span class="material-icons chevron_left" aria-hidden="true">chevron_left</span>
         </button>
-        <button id="rightButton" class="emby-scrollbuttons-button paper-icon-button-light" type="button"
-            tabindex="0">
+        <button id="rightButton" class="emby-scrollbuttons-button paper-icon-button-light" type="button" tabindex="0">
             <span class="material-icons chevron_right" aria-hidden="true">chevron_right</span>
         </button>
     </div>
     <script>
-        if (window.spotlightScriptInitialized) {
-            console.log("Spotlight script is already initialized, cleaning up before re-initialization.");
-            shutdown();
-        }
-
-        window.spotlightScriptInitialized = true;
-
-        let moviesSeriesBoth = 3, shuffleInterval = 10000, plotMaxLength = 220, token = 'de81a85d55024d7b9fa7b11031de7539', useTrailers = true;
+		let customTitle = 'Spotlight';
+        let moviesSeriesBoth = 3, shuffleInterval = 10000, plotMaxLength = 250, token = 'de81a85d55024d7b9fa7b11031de7539', useTrailers = true;
         let isChangingSlide = false, player = null, slideChangeTimeout = null, isHomePageActive = false, navigationInterval = null;
         let currentLocation = window.top.location.href;
-        let movieList = [], currentMovieIndex = 0, lastMovie = null, currentMovie = null;
-        let customTitle = 'Spotlight';
+        let movieList = [], currentMovieIndex = 0, lastMovie = null, currentMovie = null, currentSlideElement = null;
+
 
         const createElem = (tag, className, textContent, src, alt) => {
             const elem = document.createElement(tag);
@@ -65,44 +69,30 @@
         const cleanup = () => {
             if (player && typeof player.stopVideo === 'function') {
                 player.stopVideo();
-                player.destroy();
+                player.destroy(); 
                 player = null;
             }
             clearTimeout(slideChangeTimeout);
-            const container = document.getElementById('slides-container');
-            if (container) container.innerHTML = '';
         };
 
         const shutdown = () => {
+            isChangingSlide = true;
             clearTimeout(slideChangeTimeout);
-            slideChangeTimeout = null;
-
             if (player && typeof player.stopVideo === 'function') {
                 player.stopVideo();
                 player.destroy();
                 player = null;
             }
-
-            const rightButton = document.getElementById('rightButton');
-            const leftButton = document.getElementById('leftButton');
-            if (rightButton) rightButton.onclick = null;
-            if (leftButton) leftButton.onclick = null;
-
+            document.getElementById('rightButton').onclick = null;
+            document.getElementById('leftButton').onclick = null;
             const container = document.getElementById('slides-container');
-            if (container) {
-                container.innerHTML = '';
-            }
-
+            if (container) container.innerHTML = '';
             currentMovie = null;
             lastMovie = null;
             currentMovieIndex = 0;
             movieList = [];
-
             isHomePageActive = false;
             isChangingSlide = false;
-
-            window.spotlightScriptInitialized = false;
-
             console.log("Slideshow has been completely shutdown");
         };
 
@@ -112,9 +102,9 @@
         };
 
         const checkBackdropAndLogo = movie => {
-            Promise.all(['/Images/Backdrop/0', '/Images/Logo'].map(url =>
+            Promise.all(['/Images/Backdrop/0', '/Images/Logo'].map(url => 
                 fetch(`/Items/${movie.Id}${url}`, { method: 'HEAD' }).then(response => response.ok)
-            )).then(([backdropExists, logoExists]) =>
+            )).then(([backdropExists, logoExists]) => 
                 backdropExists && logoExists ? createSlideElement(movie, true) : fetchNextMovie()
             ).catch(() => fetchNextMovie());
         };
@@ -122,9 +112,9 @@
         const createSlideElement = async (movie, hasVideo = false) => {
             cleanup();
             const container = document.getElementById('slides-container');
-            const slide = createElem('div', 'slide');
-            slide.appendChild(createElem('img', 'backdrop', null, `/Items/${movie.Id}/Images/Backdrop/0`, 'backdrop'));
-            slide.appendChild(createElem('img', 'logo', null, `/Items/${movie.Id}/Images/Logo`, 'logo'));
+            const newSlide = createElem('div', 'slide');
+            newSlide.appendChild(createElem('img', 'backdrop', null, `/Items/${movie.Id}/Images/Backdrop/0`, 'backdrop'));
+            newSlide.appendChild(createElem('img', 'logo', null, `/Items/${movie.Id}/Images/Logo`, 'logo'));
 
             const textContainer = createElem('div', 'text-container');
             const premiereYear = movie.PremiereDate ? new Date(movie.PremiereDate).getFullYear() : 'Unknown';
@@ -138,12 +128,12 @@
 
             textContainer.appendChild(loremDiv);
             textContainer.appendChild(createElem('div', 'plot', truncateText(movie.Overview, plotMaxLength)));
-            slide.appendChild(textContainer);
+            newSlide.appendChild(textContainer);
 
             const overlay = createElem('div', 'clickable-overlay', null, null, 'Movie Details');
             overlay.onclick = () => window.top.Emby.Page.showItem(movie.Id);
             overlay.setAttribute('tabindex', '0');
-            slide.appendChild(overlay);
+            newSlide.appendChild(overlay);
 
             if (useTrailers && movie.RemoteTrailers?.length > 0) {
                 const videoId = new URL(movie.RemoteTrailers[0].Url).searchParams.get('v');
@@ -158,7 +148,7 @@
                 const videoElement = createElem('div', 'video-player');
                 videoContainer.appendChild(videoElement);
                 videoContainer.setAttribute('tabindex', '0');
-                slide.appendChild(videoContainer);
+                newSlide.appendChild(videoContainer);
 
                 player = new YT.Player(videoElement, {
                     height: '100%', width: '100%', videoId: videoId,
@@ -171,7 +161,7 @@
                             const calculatedWidth = videoContainerHeight * aspectRatio;
                             videoContainer.style.width = `${calculatedWidth}px`;
 
-                            const backdropElement = document.querySelector('.backdrop');
+                            const backdropElement = newSlide.querySelector('.backdrop');
                             if (backdropElement) {
                                 backdropElement.style.width = `calc(100% - ${calculatedWidth * 0.6}px)`;
                                 backdropElement.style.webkitMaskImage = backdropElement.style.maskImage = `linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) ${calculatedWidth}px, rgba(255, 255, 255, 0) 100%)`;
@@ -180,13 +170,13 @@
                                 backdropElement.style.backgroundPosition = 'center';
                             }
 
-                            const videoElement = document.querySelector('.video-player');
-                            if (videoElement) {
-                                videoElement.style.webkitMaskImage = videoElement.style.maskImage = `linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 25%)`;
+                            const videoPlayerElement = newSlide.querySelector('.video-player');
+                            if (videoPlayerElement) {
+                                videoPlayerElement.style.webkitMaskImage = videoPlayerElement.style.maskImage = `linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 25%)`;
                             }
 
                             ['plot', 'lorem-ipsum', 'clickable-overlay'].forEach(cls => {
-                                const element = document.querySelector(`.${cls}`);
+                                const element = newSlide.querySelector(`.${cls}`);
                                 if (element) element.style.width = `calc(100% - ${calculatedWidth}px)`;
                             });
                         },
@@ -200,7 +190,7 @@
                             }
 
                             ['backdrop', 'plot', 'lorem-ipsum'].forEach(cls => {
-                                const element = document.querySelector(`.${cls}`);
+                                const element = newSlide.querySelector(`.${cls}`);
                                 if (element) element.style.width = '100%';
                             });
                             videoContainer.style.width = '0';
@@ -209,15 +199,29 @@
                     }
                 });
             } else startSlideChangeTimer();
+            container.appendChild(newSlide);
+            void newSlide.offsetWidth;
+            newSlide.classList.add('visible');
+			
+            const oldSlideElement = currentSlideElement; // Capture the old slide
+            if (oldSlideElement) {
+                oldSlideElement.classList.remove('visible');
+                setTimeout(() => {
+                    if (oldSlideElement && oldSlideElement.parentNode) {
+                        oldSlideElement.parentNode.removeChild(oldSlideElement);
+                    }
+                }, 1300); // Remove after transition
+            }
+            // Update currentSlideElement
+            currentSlideElement = newSlide;
 
-            container.innerHTML = '';
-            container.appendChild(slide);
-
+            lastMovie = currentMovie;
             currentMovie = movie;
+
             updateSlideButtons();
         };
 
-        const readCustomList = () =>
+        const readCustomList = () => 
             fetch('list.txt?' + new Date().getTime())
                 .then(response => response.ok ? response.text() : null)
                 .then(text => {
@@ -235,9 +239,9 @@
 
             if (movieList.length === 0) {
                 readCustomList().then(list => {
-                    if (list) {
-                        movieList = list;
-                        currentMovieIndex = 0;
+                    if (list) { 
+                        movieList = list; 
+                        currentMovieIndex = 0; 
                     }
                     fetchNextMovie();
                 });
@@ -250,20 +254,23 @@
             const fetchCurrentUserId = () => fetch('/Sessions', {
                 headers: { 'Authorization': `MediaBrowser Client="Jellyfin Web", Device="YourDeviceName", DeviceId="YourDeviceId", Version="YourClientVersion", Token="${token}"` }
             })
-                .then(response => response.json())
-                .then(sessions => {
-                    const currentSession = sessions.find(session => session.UserId);
-                    return currentSession ? currentSession.UserId : null;
-                })
-                .catch(() => null);
+            .then(response => response.json())
+            .then(sessions => {
+                const currentSession = sessions.find(session => session.UserId);
+                return currentSession ? currentSession.UserId : null;
+            })
+            .catch(() => null);
 
             fetchCurrentUserId().then(currentUserId => {
-                if (!currentUserId) return;
+                if (!currentUserId) {
+                    isChangingSlide = false;
+                    return;
+                }
 
                 const headers = { 'Authorization': `MediaBrowser Client="Jellyfin Web", Device="YourDeviceName", DeviceId="YourDeviceId", Version="YourClientVersion", Token="${token}"` };
 
                 if (movieList.length > 0) {
-                    if (currentMovieIndex >= movieList.length) currentMovieIndex = 0;
+                    if (currentMovieIndex >= movieList.length) currentMovieIndex = 0; 
                     const movieId = movieList[currentMovieIndex];
                     currentMovieIndex++;
 
@@ -290,7 +297,6 @@
         };
 
         const startSlideChangeTimer = () => {
-            clearTimeout(slideChangeTimeout);
             slideChangeTimeout = setTimeout(fetchNextMovie, shuffleInterval);
         };
 
@@ -301,41 +307,58 @@
                 const isHomePage = url => url.includes('/home') || url.endsWith('/web/') || url.endsWith('/web/index.html');
                 if (isHomePage(newLocation)) {
                     if (!isHomePageActive) {
-                        console.log("Now on homepage, starting slideshow");
+                        console.log("Returning to homepage, reactivating slideshow");
                         isHomePageActive = true;
                         cleanup();
                         fetchRandomMovie();
+                        attachButtonListeners(); 
                     }
                 } else if (isHomePageActive) {
-                    console.log("No longer on homepage, shutting down slideshow");
-                    isHomePageActive = false;
+                    console.log("Leaving homepage, shutting down slideshow");
                     shutdown();
                 }
-            } else {
-                const isHomePage = url => url.includes('/home') || url.endsWith('/web/') || url.endsWith('/web/index.html');
-                if (isHomePage(newLocation) && !isHomePageActive) {
-                    console.log("Detected back navigation to homepage, starting slideshow");
-                    isHomePageActive = true;
-                    cleanup();
-                    fetchRandomMovie();
-                }
+            }
+        };
+
+        const attachButtonListeners = () => {
+            const rightButton = document.getElementById('rightButton');
+            const leftButton = document.getElementById('leftButton');
+
+            if (rightButton && leftButton) {
+                rightButton.onclick = fetchNextMovie;
+                leftButton.onclick = () => {
+                    if (lastMovie) {
+                        createSlideElement(lastMovie, true);
+                    }
+                };
             }
         };
 
         document.addEventListener('DOMContentLoaded', () => {
             if (window.innerWidth < 1001) useTrailers = false;
-            checkNavigation();
-            if (!navigationInterval) {
-                navigationInterval = setInterval(checkNavigation, 250);
+            const isHomePage = url => url.includes('/home') || url.endsWith('/web/') || url.endsWith('/web/index.html');
+            if (isHomePage(window.top.location.href)) {
+                isHomePageActive = true;
+                cleanup();
+                fetchRandomMovie();
+                attachButtonListeners();
             }
-        });
+            navigationInterval = setInterval(checkNavigation, 250);
+        }, { passive: true });
 
-        document.getElementById('rightButton').onclick = fetchNextMovie;
-        document.getElementById('leftButton').onclick = () => {
-            if (lastMovie) {
-                createSlideElement(lastMovie, true);
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) { 
+                const isHomePage = url => url.includes('/home') || url.endsWith('/web/') || url.endsWith('/web/index.html');
+                if (isHomePage(window.top.location.href)) {
+                    console.log("Page loaded from cache, reinitializing slideshow");
+                    isHomePageActive = true;
+                    cleanup();
+                    fetchRandomMovie();
+                    attachButtonListeners();
+                }
             }
-        };
+        }, { passive: true });
+
     </script>
     <script src="https://www.youtube.com/iframe_api"></script>
 </body>
