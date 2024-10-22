@@ -1,17 +1,20 @@
+<!DOCTYPE html>
 <html>
 <head>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <title>Spotlight - A Jellyfin UI Enhancement v2.7.2</title>
+    <title>Spotlight - A Jellyfin UI Enhancement v4.2.4</title>
     <style>
         body { margin: 0; padding: 0; overflow: hidden; }
-        .slide { position: relative; width: 100vw; height: 100vh; box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); cursor: pointer; }
+        #slides-container { position: relative; width: 100vw; height: 100vh; }
+        .slide { position: absolute; width: 100%; height: 100%; opacity: 0; filter: blur(5px); transition: opacity 1.3s ease, filter 1.3s ease; }
+        .slide.visible { opacity: 1; filter: blur(0px); }
         .backdrop { position: absolute; top: 50px; left: 0; width: 100%; height: calc(100% - 50px); object-fit: cover; object-position: center 25%; border-radius: 5px; z-index: 1; transition: width 0.5s ease; }
         .logo { position: absolute; top: 55%; left: 23%; transform: translateY(-50%) translateX(-50%) !important; max-height: 50%; max-width: 30%; width: auto; z-index: 5; transition: top 0.5s ease, transform 2.5s ease; text-shadow: -2px 2px 4px rgba(0, 0, 0, 0.5); filter: drop-shadow(1px 1px 1px); }
         .heading { position: absolute; top: 0; left: 0; width: 100%; height: 50px; background-color: transparent; font-family: "Titillium Web", sans-serif; color: #D3D3D3; font-size: 22px; display: flex; align-items: center; justify-content: flex-start; z-index: 2; padding: 10px; box-sizing: border-box; }
         .video-container { position: absolute; right: 0; top: 50px; width: 0; height: calc(100% - 50px); overflow: hidden; z-index: 0; transition: width 0.5s ease; }
         .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        .clickable-overlay { position: absolute; top: 50px; left: 0; width: calc(100% - 50px); height: calc(100% - 50px); z-index: 7; cursor: pointer; background: linear-gradient(140deg, rgba(0, 0, 0, 0.89) 0%, rgba(0, 0, 0, 0.69) 6.25%, rgba(0, 0, 0, 0.52) 12.5%, rgba(0, 0, 0, 0.39) 18.75%, rgba(0, 0, 0, 0.28) 25%, rgba(0, 0, 0, 0.2) 31.25%, rgba(0, 0, 0, 0.14) 37.5%, rgba(0, 0, 0, 0.09) 43.75%, rgba(0, 0, 0, 0.05) 50%, rgba(0, 0, 0, 0.03) 56.25%, rgba(0, 0, 0, 0.02) 62.5%, rgba(0, 0, 0, 0.01) 68.75%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0) 81.25%, rgba(0, 0, 0, 0) 87.5%, rgba(0, 0, 0, 0) 93.75%, rgba(0, 0, 0, 0) 100% ); }
+        .clickable-overlay { position: absolute; top: 50px; left: 0; width: calc(100% - 50px); height: calc(100% - 50px); z-index: 7; cursor: pointer; background: linear-gradient(140deg, rgba(0, 0, 0, 0.89) 0%, rgba(0, 0, 0, 0.69) 6.25%, rgba(0, 0, 0, 0.52) 12.5%, rgba(0, 0, 0, 0.39) 18.75%, rgba(0, 0, 0, 0.28) 25%, rgba(0, 0, 0, 0.2) 31.25%, rgba(0, 0, 0, 0.14) 37.5%, rgba(0, 0, 0, 0.09) 43.75%, rgba(0, 0, 0, 0.05) 50%, rgba(0, 0, 0, 0.03) 56.25%, rgba(0, 0, 0, 0.02) 62.5%, rgba(0, 0, 0, 0.01) 68.75%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0) 81.25%, rgba(0, 0, 0, 0) 87.5%, rgba(0, 0, 0, 0) 93.75%, rgba(0, 0, 0, 0) 100% ); z-index: 10; }
         .lorem-ipsum { position: absolute; top: 2.0em; width: 100%; text-align: right; font-family: "Titillium Web", sans-serif; font-size: 1.4em; text-shadow: 2px 2px 20px rgba(0, 0, 0, 1); opacity: 0; transition: opacity 0.3s ease, width 0.5s ease; color: #ecf0f1; z-index: 4; box-sizing: border-box; line-height: 1.75em; padding-right: 10px;}
         .plot { position:absolute; bottom:0; left:0; right:0; color:white; font-family:"Titillium Web", sans-serif; font-size:1.1em; font-style:italic; background:linear-gradient(0deg, rgb(0% 0% 0% / 0.86) 0%, rgb(0% 0% 0% / 0.8566406249999999) 6.25%, rgb(0% 0% 0% / 0.8465625) 12.5%, rgb(0% 0% 0% / 0.829765625) 18.75%, rgb(0% 0% 0% / 0.80625) 25%, rgb(0% 0% 0% / 0.776015625) 31.25%, rgb(0% 0% 0% / 0.7390625) 37.5%, rgb(0% 0% 0% / 0.6953906249999999) 43.75%, rgb(0% 0% 0% / 0.645) 50%, rgb(0% 0% 0% / 0.587890625) 56.25%, rgb(0% 0% 0% / 0.5240625) 62.5%, rgb(0% 0% 0% / 0.453515625) 68.75%, rgb(0% 0% 0% / 0.37625) 75%, rgb(0% 0% 0% / 0.292265625) 81.25%, rgb(0% 0% 0% / 0.20156249999999998) 87.5%, rgb(0% 0% 0% / 0.10414062499999999) 93.75%, rgb(0% 0% 0% / 0) 100%); padding:10px; border-radius:0.2em; z-index:4; box-sizing:border-box; transition:width 0.5s ease; padding-bottom:3px; padding-top:0.5em; line-height:1.3em; text-shadow:1px 1px 4px rgba(0, 0, 0, 1); mask-image:linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 100%); -webkit-mask-image:linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 100%); }
         .slide:hover .logo { transform: translateY(-50%) translateX(-50%) scale(1.35) !important; }
@@ -22,313 +25,486 @@
         .emby-scrollbuttons-button:disabled { opacity: 0.5; cursor: default; }
         .material-icons { font-family: 'Material Icons'; font-weight: normal; font-style: normal; font-size: inherit; display: inline-block; line-height: 1; text-transform: none; letter-spacing: normal; word-wrap: normal; white-space: nowrap; direction: ltr; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; -moz-osx-font-smoothing: grayscale; font-feature-settings: 'liga'; }
     </style>
+<script>
+        // Global promise to handle YouTube Iframe API readiness
+        let youTubeAPIReadyPromise = new Promise((resolve, reject) => {
+            // Check if YT is already defined
+            if (window.YT && window.YT.Player) {
+                console.log("YouTube Iframe API already loaded.");
+                resolve(window.YT);
+            } else {
+                // Define the callback for when the YouTube Iframe API is ready
+                window.onYouTubeIframeAPIReady = function() {
+                    console.log("YouTube Iframe API is ready.");
+                    resolve(window.YT);
+                };
+
+                // Load YouTube Iframe API if not already loaded
+                if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
+                    const tag = document.createElement('script');
+                    tag.src = "https://www.youtube.com/iframe_api";
+                    const firstScriptTag = document.getElementsByTagName('script')[0];
+                    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+                    console.log("YouTube Iframe API script added.");
+                } else {
+                    console.log("YouTube Iframe API script already present.");
+                }
+
+                // Optional: Set a timeout to reject the promise if API doesn't load
+                setTimeout(() => {
+                    reject(new Error("YouTube Iframe API failed to load within expected time."));
+                }, 10000); // 10 seconds timeout
+            }
+        });
+    </script>
 </head>
 <body>
     <div id="slides-container"></div>
     <div class="heading" id="titleHeading">Spotlight</div>
     <div class="emby-scrollbuttons">
         <button id="leftButton" class="emby-scrollbuttons-button paper-icon-button-light" type="button" disabled tabindex="0">
-			<span class="material-icons chevron_left" aria-hidden="true">chevron_left</span>
-		</button>
-		<button id="rightButton" class="emby-scrollbuttons-button paper-icon-button-light" type="button" tabindex="0">
-			<span class="material-icons chevron_right" aria-hidden="true">chevron_right</span>
-		</button>
+            <span class="material-icons chevron_left" aria-hidden="true">chevron_left</span>
+        </button>
+        <button id="rightButton" class="emby-scrollbuttons-button paper-icon-button-light" type="button" tabindex="0">
+            <span class="material-icons chevron_right" aria-hidden="true">chevron_right</span>
+        </button>
     </div>
-	<script>
-		let moviesSeriesBoth = 3, shuffleInterval = 10000, plotMaxLength = 220, token = 'de81a85d55024d7b9fa7b11031de7539', useTrailers = true;
-		let isChangingSlide = false, player = null, slideChangeTimeout = null, isHomePageActive = false, navigationInterval = null;
-		let currentLocation = window.top.location.href;
-		let movieList = [], currentMovieIndex = 0, lastMovie = null, currentMovie = null;
+    <script>
+        // Initialize global variables
         let customTitle = 'Spotlight';
+        let moviesSeriesBoth = 3, shuffleInterval = 10000, plotMaxLength = 250, token = 'de81a85d55024d7b9fa7b11031de7539', useTrailers = true;
+        let isChangingSlide = false, player = null, slideChangeTimeout = null, isHomePageActive = false, navigationInterval = null;
+        let currentLocation = window.top.location.href;
+        let movieList = [], currentMovieIndex = 0, lastMovie = null, currentMovie = null, currentSlideElement = null;
 
-		const createElem = (tag, className, textContent, src, alt) => {
-			const elem = document.createElement(tag);
-			if (className) elem.className = className;
-			if (textContent) elem.textContent = textContent;
-			if (src) elem.src = src;
-			if (alt) elem.alt = alt;
-			return elem;
-		};
+        // Create and return a new DOM element with specified attributes
+        const createElem = (tag, className, textContent, src, alt) => {
+            const elem = document.createElement(tag);
+            if (className) elem.className = className;
+            if (textContent) elem.textContent = textContent;
+            if (src) elem.src = src;
+            if (alt) elem.alt = alt;
+            return elem;
+        };
 
-		const truncateText = (text, maxLength) => text && text.length > maxLength ? text.substr(0, maxLength) + '...' : text;
+        // Truncate text to a specified maximum length and append '...' if truncated
+        const truncateText = (text, maxLength) => text && text.length > maxLength ? text.substr(0, maxLength) + '...' : text;
 
-		const cleanup = () => {
-			if (player && typeof player.stopVideo === 'function') {
-				player.stopVideo();
-				player.destroy(); 
-				player = null;
-			}
-			clearTimeout(slideChangeTimeout);
-			const container = document.getElementById('slides-container');
-			if (container) container.innerHTML = '';
-		};
+        // Clean up existing player and timeout
+        const cleanup = () => {
+            if (player && typeof player.stopVideo === 'function') {
+                player.stopVideo();
+                player.destroy(); 
+                player = null;
+                console.log("YouTube player cleaned up.");
+            }
+            if (slideChangeTimeout) {
+                clearTimeout(slideChangeTimeout);
+                slideChangeTimeout = null;
+                console.log("Slide change timeout cleared.");
+            }
+        };
 
-		const shutdown = () => {
-			// Prevent further slide changes during shutdown
-			isChangingSlide = true;
+        // Shut down the slideshow by cleaning up and resetting variables
+        const shutdown = () => {
+            isChangingSlide = true;
+            cleanup();
+            document.getElementById('rightButton').onclick = null;
+            document.getElementById('leftButton').onclick = null;
+            const container = document.getElementById('slides-container');
+            if (container) container.innerHTML = '';
+            currentMovie = null;
+            lastMovie = null;
+            currentMovieIndex = 0;
+            movieList = [];
+            isHomePageActive = false;
+            isChangingSlide = false;
+            
+            console.log("Slideshow has been completely shutdown");
+        };
 
-			// Stop the slideshow interval
-			clearTimeout(slideChangeTimeout);
+        // Update the state of navigation buttons based on the current and last movie
+        const updateSlideButtons = () => {
+            const leftButton = document.getElementById('leftButton');
+            leftButton.disabled = !lastMovie || (currentMovie && lastMovie.Id === currentMovie.Id);
+            console.log(`Left button disabled: ${leftButton.disabled}`);
+        };
 
-			// Stop the YouTube player if it exists
-			if (player && typeof player.stopVideo === 'function') {
-				player.stopVideo();
-				player.destroy();
-				player = null;
-			}
+        // Check if backdrop and logo images exist for the movie, then create the slide or fetch the next movie
+        const checkBackdropAndLogo = movie => {
+            Promise.all(['/Images/Backdrop/0', '/Images/Logo'].map(url => 
+                fetch(`/Items/${movie.Id}${url}`, { method: 'HEAD' }).then(response => response.ok)
+            )).then(([backdropExists, logoExists]) => {
+                if (backdropExists && logoExists) {
+                    console.log(`Backdrop and logo exist for movie: ${movie.Title}`);
+                    createSlideElement(movie, true);
+                } else {
+                    console.log(`Backdrop or logo missing for movie: ${movie.Title}. Fetching next movie.`);
+                    fetchNextMovie();
+                }
+            }).catch(error => {
+                console.error("Error checking backdrop and logo:", error);
+                fetchNextMovie();
+            });
+        };
 
-			// Remove any event listeners
-			document.getElementById('rightButton').onclick = null;
-			document.getElementById('leftButton').onclick = null;
+        // Create and display a new slide element for the given movie
+        const createSlideElement = async (movie, hasVideo = false) => {
+            cleanup();
+            const container = document.getElementById('slides-container');
+            const newSlide = createElem('div', 'slide');
+            newSlide.appendChild(createElem('img', 'backdrop', null, `/Items/${movie.Id}/Images/Backdrop/0`, 'backdrop'));
+            newSlide.appendChild(createElem('img', 'logo', null, `/Items/${movie.Id}/Images/Logo`, 'logo'));
 
-			// Remove all content from the slides container
-			const container = document.getElementById('slides-container');
-			if (container) {
-				container.innerHTML = '';
-			}
+            const textContainer = createElem('div', 'text-container');
+            const premiereYear = movie.PremiereDate ? new Date(movie.PremiereDate).getFullYear() : 'Unknown';
+            const additionalInfo = movie.Type === 'Series' ? (movie.ChildCount ? `${movie.ChildCount} Season${movie.ChildCount > 1 ? 's' : ''}` : 'Unknown Seasons') : (movie.RunTimeTicks ? `${Math.round(movie.RunTimeTicks / 600000000)} min` : 'Unknown Runtime');
 
-			// Reset key variables to prepare for a fresh restart
-			currentMovie = null;
-			lastMovie = null;
-			currentMovieIndex = 0;
-			movieList = [];
+            let loremText = `${premiereYear}   |   ${additionalInfo}`;
+            if (movie.CommunityRating) loremText += `   |   <i class=\"star-icon fas fa-star\"></i> ${movie.CommunityRating.toFixed(1)}`;
+            if (movie.CriticRating) loremText += `<img src="https://i.imgur.com/iMfwDk7.png" alt="Rotten Tomatoes" style="width: 1.2em; height: 1.2em; padding-left: 0.5em; vertical-align: sub;"> ${movie.CriticRating}%`;
+            const loremDiv = createElem('div', 'lorem-ipsum');
+            loremDiv.innerHTML = loremText;
 
-			// Do not clear the navigation checker interval, so the script can restart when needed
+            textContainer.appendChild(loremDiv);
+            textContainer.appendChild(createElem('div', 'plot', truncateText(movie.Overview, plotMaxLength)));
+            newSlide.appendChild(textContainer);
 
-			// Reset state flags
-			isHomePageActive = false;
-			isChangingSlide = false;
+            const overlay = createElem('div', 'clickable-overlay', null, null, 'Movie Details');
+            overlay.onclick = () => window.top.Emby.Page.showItem(movie.Id);
+            overlay.setAttribute('tabindex', '0');
+            newSlide.appendChild(overlay);
 
-			console.log("Slideshow has been completely shutdown");
-		};
+            if (useTrailers && movie.RemoteTrailers?.length > 0) {
+                const trailerUrl = movie.RemoteTrailers[0].Url;
+                let videoId = null;
+                try {
+                    videoId = new URL(trailerUrl).searchParams.get('v');
+                } catch (e) {
+                    console.error("Invalid trailer URL:", trailerUrl);
+                }
 
-		const updateSlideButtons = () => {
-			const leftButton = document.getElementById('leftButton');
-			leftButton.disabled = !lastMovie || lastMovie.Id === currentMovie.Id;
-		};
+                if (videoId) {
+                    let aspectRatio = 16 / 9;
+                    try {
+                        const response = await fetch('https://noembed.com/embed?url=https://www.youtube.com/watch?v=' + videoId);
+                        const data = await response.json();
+                        if (data.width && data.height) aspectRatio = data.width / data.height;
+                    } catch (e) { 
+                        console.error("Error fetching trailer embed data:", e);
+                    }
 
-		const checkBackdropAndLogo = movie => {
-			Promise.all(['/Images/Backdrop/0', '/Images/Logo'].map(url => 
-				fetch(`/Items/${movie.Id}${url}`, { method: 'HEAD' }).then(response => response.ok)
-			)).then(([backdropExists, logoExists]) => 
-				backdropExists && logoExists ? createSlideElement(movie, true) : fetchNextMovie()
-			).catch(() => fetchNextMovie());
-		};
+                    const videoContainer = createElem('div', 'video-container', null, null, 'Play Trailer');
+                    const videoElement = createElem('div', 'video-player');
+                    videoContainer.appendChild(videoElement);
+                    videoContainer.setAttribute('tabindex', '0');
+                    newSlide.appendChild(videoContainer);
 
-		const createSlideElement = async (movie, hasVideo = false) => {
-			cleanup();
-			const container = document.getElementById('slides-container');
-			const slide = createElem('div', 'slide');
-			slide.appendChild(createElem('img', 'backdrop', null, `/Items/${movie.Id}/Images/Backdrop/0`, 'backdrop'));
-			slide.appendChild(createElem('img', 'logo', null, `/Items/${movie.Id}/Images/Logo`, 'logo'));
+                    // Initialize YouTube player after ensuring API is ready
+                    youTubeAPIReadyPromise.then(YT => {
+                        console.log("Initializing YouTube player for video ID:", videoId);
+                        player = new YT.Player(videoElement, {
+                            height: '100%',
+                            width: '100%',
+                            videoId: videoId,
+                            playerVars: {
+                                'autoplay': 1,
+                                'controls': 0,
+                                'loop': 0,
+                                'rel': 0,
+                                'modestbranding': 1,
+                                'color': 'white',
+                                'iv_load_policy': 3,
+                                'fs': 0
+                            },
+                            events: {
+                                'onReady': event => {
+                                    console.log("YouTube player ready.");
+                                    event.target.playVideo();
+                                    event.target.setVolume(50);
+                                    const videoContainerHeight = videoContainer.clientHeight;
+                                    const calculatedWidth = videoContainerHeight * aspectRatio;
+                                    videoContainer.style.width = `${calculatedWidth}px`;
 
-			const textContainer = createElem('div', 'text-container');
-			const premiereYear = movie.PremiereDate ? new Date(movie.PremiereDate).getFullYear() : 'Unknown';
-			const additionalInfo = movie.Type === 'Series' ? (movie.ChildCount ? `${movie.ChildCount} Season${movie.ChildCount > 1 ? 's' : ''}` : 'Unknown Seasons') : (movie.RunTimeTicks ? `${Math.round(movie.RunTimeTicks / 600000000)} min` : 'Unknown Runtime');
+                                    const backdropElement = newSlide.querySelector('.backdrop');
+                                    if (backdropElement) {
+                                        backdropElement.style.width = `calc(100% - ${calculatedWidth * 0.6}px)`;
+                                        backdropElement.style.webkitMaskImage = backdropElement.style.maskImage = `linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) ${calculatedWidth}px, rgba(255, 255, 255, 0) 100%)`;
+                                        backdropElement.style.backgroundImage = `url(/Items/${movie.Id}/Images/Backdrop/0)`;
+                                        backdropElement.style.backgroundSize = 'cover';
+                                        backdropElement.style.backgroundPosition = 'center';
+                                    }
 
-			let loremText = `${premiereYear}   |   ${additionalInfo}`;
-			if (movie.CommunityRating) loremText += `   |   <i class=\"star-icon fas fa-star\"></i> ${movie.CommunityRating.toFixed(1)}`;
-			if (movie.CriticRating) loremText += `<img src="https://i.imgur.com/iMfwDk7.png" alt="Rotten Tomatoes" style="width: 1.2em; height: 1.2em; padding-left: 0.5em; vertical-align: sub;"> ${movie.CriticRating}%`;
-			const loremDiv = createElem('div', 'lorem-ipsum');
-			loremDiv.innerHTML = loremText;
+                                    const videoPlayerElement = newSlide.querySelector('.video-player');
+                                    if (videoPlayerElement) {
+                                        videoPlayerElement.style.webkitMaskImage = videoPlayerElement.style.maskImage = `linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 25%)`;
+                                    }
 
-			textContainer.appendChild(loremDiv);
-			textContainer.appendChild(createElem('div', 'plot', truncateText(movie.Overview, plotMaxLength)));
-			slide.appendChild(textContainer);
+                                    ['plot', 'lorem-ipsum', 'clickable-overlay'].forEach(cls => {
+                                        const element = newSlide.querySelector(`.${cls}`);
+                                        if (element) element.style.width = `calc(100% - ${calculatedWidth}px)`;
+                                    });
+                                },
+                                'onStateChange': event => {
+                                    if (event.data === YT.PlayerState.ENDED) {
+                                        console.log("YouTube video ended. Fetching next movie.");
+                                        setTimeout(fetchNextMovie, 100);
+                                    }
+                                },
+                                'onError': event => {
+                                    console.error("YouTube Player Error:", event.data);
+                                    if (player) {
+                                        player.destroy();
+                                        player = null;
+                                    }
 
-			const overlay = createElem('div', 'clickable-overlay', null, null, 'Movie Details');
-			overlay.onclick = () => window.top.Emby.Page.showItem(movie.Id);
-			overlay.setAttribute('tabindex', '0');
-			slide.appendChild(overlay);
+                                    ['backdrop', 'plot', 'lorem-ipsum'].forEach(cls => {
+                                        const element = newSlide.querySelector(`.${cls}`);
+                                        if (element) element.style.width = '100%';
+                                    });
+                                    videoContainer.style.width = '0';
+                                    startSlideChangeTimer();
+                                }
+                            }
+                        });
+                    }).catch(error => {
+                        console.error("YouTube Iframe API is not ready or failed to load:", error);
+                        startSlideChangeTimer();
+                    });
+                } else {
+                    console.warn("Trailer video ID not found for movie:", movie.Title);
+                    startSlideChangeTimer();
+                }
+            } else {
+                startSlideChangeTimer();
+            }
 
-			if (useTrailers && movie.RemoteTrailers?.length > 0) {
-				const videoId = new URL(movie.RemoteTrailers[0].Url).searchParams.get('v');
-				let aspectRatio = 16 / 9;
-				try {
-					const response = await fetch('https://noembed.com/embed?url=https://www.youtube.com/watch?v=' + videoId);
-					const data = await response.json();
-					if (data.width && data.height) aspectRatio = data.width / data.height;
-				} catch (e) { }
+            container.appendChild(newSlide);
+            void newSlide.offsetWidth;
+            newSlide.classList.add('visible');
 
-				const videoContainer = createElem('div', 'video-container', null, null, 'Play Trailer');
-				const videoElement = createElem('div', 'video-player');
-				videoContainer.appendChild(videoElement);
-				videoContainer.setAttribute('tabindex', '0');
-				slide.appendChild(videoContainer);
+            const oldSlideElement = currentSlideElement; // Capture the old slide
+            if (oldSlideElement) {
+                oldSlideElement.classList.remove('visible');
+                setTimeout(() => {
+                    if (oldSlideElement && oldSlideElement.parentNode) {
+                        oldSlideElement.parentNode.removeChild(oldSlideElement);
+                        console.log("Old slide removed from DOM.");
+                    }
+                }, 1300); // Remove after transition
+            }
+            // Update currentSlideElement
+            currentSlideElement = newSlide;
 
-				player = new YT.Player(videoElement, {
-					height: '100%', width: '100%', videoId: videoId,
-					playerVars: { 'autoplay': 1, 'controls': 0, 'loop': 0, 'rel': 0, 'modestbranding': 1, 'color': 'white', 'iv_load_policy': 3, 'fs': 0 },
-					events: {
-						'onReady': event => {
-							event.target.playVideo();
-							event.target.setVolume(50);
-							const videoContainerHeight = videoContainer.clientHeight;
-							const calculatedWidth = videoContainerHeight * aspectRatio;
-							videoContainer.style.width = `${calculatedWidth}px`;
+            lastMovie = currentMovie;
+            currentMovie = movie;
 
-							const backdropElement = document.querySelector('.backdrop');
-							if (backdropElement) {
-								backdropElement.style.width = `calc(100% - ${calculatedWidth * 0.6}px)`;
-								backdropElement.style.webkitMaskImage = backdropElement.style.maskImage = `linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) ${calculatedWidth}px, rgba(255, 255, 255, 0) 100%)`;
-								backdropElement.style.backgroundImage = `url(/Items/${movie.Id}/Images/Backdrop/0)`;
-								backdropElement.style.backgroundSize = 'cover';
-								backdropElement.style.backgroundPosition = 'center';
-							}
+            updateSlideButtons();
+        };
 
-							// Apply fading effect to YouTube player
-							const videoElement = document.querySelector('.video-player');
-							if (videoElement) {
-								videoElement.style.webkitMaskImage = videoElement.style.maskImage = `linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 25%)`;
-							}
+        // Read a custom list of movie IDs from 'list.txt' and update the title
+        const readCustomList = () => 
+            fetch('list.txt?' + new Date().getTime())
+                .then(response => response.ok ? response.text() : null)
+                .then(text => {
+                    if (!text) return null;
+                    const lines = text.split('\n').filter(Boolean);
+                    customTitle = lines.shift() || customTitle;
+                    document.getElementById('titleHeading').textContent = customTitle;
+                    return lines.map(line => line.trim().substring(0, 32));
+                })
+                .catch(error => {
+                    console.error("Error reading custom list:", error);
+                    return null;
+                });
 
-							['plot', 'lorem-ipsum', 'clickable-overlay'].forEach(cls => {
-								const element = document.querySelector(`.${cls}`);
-								if (element) element.style.width = `calc(100% - ${calculatedWidth}px)`;
-							});
-						},
-						'onStateChange': event => {
-							if (event.data === YT.PlayerState.ENDED) setTimeout(fetchNextMovie, 100);
-						},
-						'onError': () => {
-							if (player) {
-								player.destroy();
-								player = null;
-							}
+        // Fetch a random movie or the next movie in the custom list
+        const fetchRandomMovie = () => {
+            if (isChangingSlide) {
+                console.log("Slide change already in progress.");
+                return;
+            }
+            isChangingSlide = true;
 
-							['backdrop', 'plot', 'lorem-ipsum'].forEach(cls => {
-								const element = document.querySelector(`.${cls}`);
-								if (element) element.style.width = '100%';
-							});
-							videoContainer.style.width = '0';
-							startSlideChangeTimer();
-						}
-					}
-				});
-			} else startSlideChangeTimer();
+            if (movieList.length === 0) {
+                readCustomList().then(list => {
+                    if (list) { 
+                        movieList = list; 
+                        currentMovieIndex = 0; 
+                        console.log("Custom movie list loaded:", movieList);
+                    }
+                    fetchNextMovie();
+                }).catch(error => {
+                    console.error("Error loading custom movie list:", error);
+                    fetchNextMovie();
+                });
+            } else {
+                fetchNextMovie();
+            }
+        };
 
-			container.innerHTML = '';
-			container.appendChild(slide);
+        // Fetch the next movie based on the current list or randomly
+        const fetchNextMovie = () => {
+            if (currentMovie) lastMovie = currentMovie;
 
-			currentMovie = movie;
-			updateSlideButtons();
-		};
+            // Fetch the current user's ID
+            const fetchCurrentUserId = () => fetch('/Sessions', {
+                headers: { 'Authorization': `MediaBrowser Client="Jellyfin Web", Device="YourDeviceName", DeviceId="YourDeviceId", Version="YourClientVersion", Token="${token}"` }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+                return response.json();
+            })
+            .then(sessions => {
+                const currentSession = sessions.find(session => session.UserId);
+                return currentSession ? currentSession.UserId : null;
+            })
+            .catch(error => {
+                console.error("Error fetching current user ID:", error);
+                return null;
+            });
 
-		// Function to read custom list from list.txt and update the title
-		const readCustomList = () => 
-			fetch('list.txt?' + new Date().getTime())
-				.then(response => response.ok ? response.text() : null)
-				.then(text => {
-					if (!text) return null;
-					const lines = text.split('\n').filter(Boolean);
-					// Use the first line as the title
-					customTitle = lines.shift() || customTitle;
-					document.getElementById('titleHeading').textContent = customTitle; // Update the title
-					return lines.map(line => line.trim().substring(0, 32));  // Assuming first 32 chars are media IDs
-				})
-				.catch(() => null);
+            fetchCurrentUserId().then(currentUserId => {
+                if (!currentUserId) {
+                    console.warn("Current user ID not found.");
+                    isChangingSlide = false;
+                    return;
+                }
 
-		const fetchRandomMovie = () => {
-			if (isChangingSlide) return;
-			isChangingSlide = true;
+                const headers = { 'Authorization': `MediaBrowser Client="Jellyfin Web", Device="YourDeviceName", DeviceId="YourDeviceId", Version="YourClientVersion", Token="${token}"` };
 
-			if (movieList.length === 0) {
-				readCustomList().then(list => {
-					if (list) { 
-						movieList = list; 
-						currentMovieIndex = 0; 
-					}
-					fetchNextMovie();
-				});
-			} else fetchNextMovie();
-		};
+                if (movieList.length > 0) {
+                    if (currentMovieIndex >= movieList.length) currentMovieIndex = 0; 
+                    const movieId = movieList[currentMovieIndex];
+                    currentMovieIndex++;
 
-		const fetchNextMovie = () => {
-			if (currentMovie) lastMovie = currentMovie;
+                    fetch(`/Users/${currentUserId}/Items/${movieId}?Fields=Overview,RemoteTrailers,PremiereDate,RunTimeTicks,ChildCount,Title,Type`, { headers })
+                        .then(response => {
+                            if (!response.ok) throw new Error(`Failed to fetch movie: ${response.statusText}`);
+                            return response.json();
+                        })
+                        .then(movie => {
+                            console.log("Fetched movie from custom list:", movie.Title);
+                            checkBackdropAndLogo(movie);
+                        })
+                        .catch(error => {
+                            console.error("Error fetching movie from custom list:", error);
+                            startSlideChangeTimer();
+                        })
+                        .finally(() => { isChangingSlide = false; });
+                } else {
+                    const itemTypes = moviesSeriesBoth === 1 ? 'Movie' : (moviesSeriesBoth === 2 ? 'Series' : 'Movie,Series');
+                    fetch(`/Users/${currentUserId}/Items?IncludeItemTypes=${itemTypes}&Recursive=true&Limit=1&SortBy=random&Fields=Id,Overview,RemoteTrailers,PremiereDate,RunTimeTicks,ChildCount,Title,Type`, { headers })
+                        .then(response => {
+                            if (!response.ok) throw new Error(`Failed to fetch random movie: ${response.statusText}`);
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.Items[0]) {
+                                console.log("Fetched random movie:", data.Items[0].Title);
+                                checkBackdropAndLogo(data.Items[0]);
+                            } else {
+                                console.warn("No items found in random fetch.");
+                                startSlideChangeTimer();
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error fetching random movie:", error);
+                            startSlideChangeTimer();
+                        })
+                        .finally(() => { isChangingSlide = false; });
+                }
+            });
+        };
 
-			const fetchCurrentUserId = () => fetch('/Sessions', {
-				headers: { 'Authorization': `MediaBrowser Client="Jellyfin Web", Device="YourDeviceName", DeviceId="YourDeviceId", Version="YourClientVersion", Token="${token}"` }
-			})
-			.then(response => response.json())
-			.then(sessions => {
-				const currentSession = sessions.find(session => session.UserId);
-				return currentSession ? currentSession.UserId : null;
-			})
-			.catch(() => null);
+        // Start a timer to change slides after a specified interval
+        const startSlideChangeTimer = () => {
+            if (slideChangeTimeout) clearTimeout(slideChangeTimeout);
+            slideChangeTimeout = setTimeout(fetchNextMovie, shuffleInterval);
+            console.log("Slide change timer started.");
+        };
 
-			fetchCurrentUserId().then(currentUserId => {
-				if (!currentUserId) {
-					isChangingSlide = false;
-					return;
-				}
+        // Check if the user has navigated away from the homepage and handle slideshow accordingly
+        const checkNavigation = () => {
+            const newLocation = window.top.location.href;
+            
+            if (newLocation !== currentLocation) {
+                currentLocation = newLocation;
+                
+                const isHomePage = url => url.endsWith('home.html') || url.endsWith('/web/') || url.endsWith('/web/index.html');
+                if (isHomePage(newLocation)) {
+                    if (!isHomePageActive) {
+                        console.log("Returning to homepage, reactivating slideshow");
+                        isHomePageActive = true;
+                        cleanup();
+                        fetchRandomMovie();
+                        attachButtonListeners(); 
+                    }
+                } else if (isHomePageActive) {
+                    console.log("Leaving homepage, shutting down slideshow");
+                    shutdown();
+                    setTimeout(function(){
+                        window.location.href = window.location.href;
+                        /* This page reload is strangely critical to ensure
+                        we don't double the script vars upon navigating home
+                        using Jellyfin's home button. BUt it makes videos Only
+						load on home not navback. Meh, lesser of two evils;
+						True SPA headache... */
+                    }, 500);
+                }
+            }	
+        };
 
-				const headers = { 'Authorization': `MediaBrowser Client="Jellyfin Web", Device="YourDeviceName", DeviceId="YourDeviceId", Version="YourClientVersion", Token="${token}"` };
+        // Attach event listeners to navigation buttons
+        const attachButtonListeners = () => {
+            const rightButton = document.getElementById('rightButton');
+            const leftButton = document.getElementById('leftButton');
 
-				if (movieList.length > 0) {
-					if (currentMovieIndex >= movieList.length) currentMovieIndex = 0; // Wraparound functionality
-					const movieId = movieList[currentMovieIndex];
-					currentMovieIndex++;
+            if (rightButton && leftButton) {
+                rightButton.onclick = fetchNextMovie;
+                leftButton.onclick = () => {
+                    if (lastMovie) {
+                        console.log("Navigating to previous movie:", lastMovie.Title);
+                        createSlideElement(lastMovie, true);
+                    }
+                };
+                console.log("Navigation button listeners attached.");
+            }
+        };
 
-					fetch(`/Users/${currentUserId}/Items/${movieId}?Fields=Overview,RemoteTrailers,PremiereDate,RunTimeTicks,ChildCount`, { headers })
-						.then(response => response.json())
-						.then(movie => {
-							checkBackdropAndLogo(movie);
-						})
-						.catch(() => startSlideChangeTimer())
-						.finally(() => { isChangingSlide = false; });
-				} else {
-					// Fallback to random media fetching if list.txt isn't found
-					const itemTypes = moviesSeriesBoth === 1 ? 'Movie' : (moviesSeriesBoth === 2 ? 'Series' : 'Movie,Series');
-					fetch(`/Users/${currentUserId}/Items?IncludeItemTypes=${itemTypes}&Recursive=true&Limit=1&SortBy=random&Fields=Id,Overview,RemoteTrailers,PremiereDate,RunTimeTicks,ChildCount`, { headers })
-						.then(response => response.json())
-						.then(data => {
-							if (data.Items[0]) {
-								checkBackdropAndLogo(data.Items[0]);
-							}
-						})
-						.catch(() => startSlideChangeTimer())
-						.finally(() => { isChangingSlide = false; });
-				}
-			});
-		};
+        // Initialize the slideshow once the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.innerWidth < 701) useTrailers = false;
+            const isHomePage = url => url.includes('/home') || url.endsWith('/web/') || url.endsWith('/web/index.html');
+            if (isHomePage(window.top.location.href)) {
+                isHomePageActive = true;
+                cleanup();
+                fetchRandomMovie();
+                attachButtonListeners();
+                console.log("Slideshow initialized on homepage.");
+            }
+            navigationInterval = setInterval(checkNavigation, 250);
+            console.log("Navigation check interval started.");
+        }, { passive: true });
 
-		document.addEventListener('DOMContentLoaded', () => {
-			if (window.innerWidth < 1001) useTrailers = false;
-			const isHomePage = url => url.includes('/home') || url.endsWith('/web/') || url.endsWith('/web/index.html');
-			if (isHomePage(window.top.location.href)) {
-				isHomePageActive = true;
-				cleanup();
-				fetchRandomMovie();
-			}
-			navigationInterval = setInterval(checkNavigation, 250); // Set navigation interval here
-		});
-
-		document.getElementById('rightButton').onclick = fetchNextMovie;
-		document.getElementById('leftButton').onclick = () => {
-			if (lastMovie) {
-				createSlideElement(lastMovie, true);
-			}
-		};
-
-		const checkNavigation = () => {
-			const newLocation = window.top.location.href;
-			if (newLocation !== currentLocation) {
-				currentLocation = newLocation;
-				const isHomePage = url => url.includes('/home') || url.endsWith('/web/') || url.endsWith('/web/index.html');
-				if (isHomePage(newLocation)) {
-					if (!isHomePageActive) {
-						console.log("Returning to homepage, reactivating slideshow");
-						isHomePageActive = true;
-						cleanup();
-						fetchRandomMovie();
-					}
-				} else if (isHomePageActive) {
-					console.log("Leaving homepage, shutting down slideshow");
-					shutdown();
-				}
-			}
-		};
-	</script>
-    <script src="https://www.youtube.com/iframe_api"></script>
+        // Expose controlYouTubePlayer to the global window scope
+        window.controlYouTubePlayer = {
+            // Toggle play/pause state of the YouTube player
+            toggle: function() {
+                if (player && typeof player.getPlayerState === 'function') {
+                    const state = player.getPlayerState();
+                    if (state === YT.PlayerState.PLAYING) {
+                        player.pauseVideo();
+                        console.log("YouTube player paused.");
+                    } else {
+                        player.playVideo();
+                        console.log("YouTube player playing.");
+                    }
+                } else {
+                    console.warn('YouTube player is not initialized or not available.');
+                }
+            }
+        };
+    </script>
 </body>
 </html>
