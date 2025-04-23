@@ -3,29 +3,110 @@
 <head>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <title>Spotlight - A Jellyfin UI Enhancement v4.2.4</title>
+    <title>Spotlight - A Jellyfin UI Enhancement v4.2.6</title>
     <style>
         body { margin: 0; padding: 0; overflow: hidden; }
         #slides-container { position: relative; width: 100vw; height: 100vh; }
         .slide { position: absolute; width: 100%; height: 100%; opacity: 0; filter: blur(5px); transition: opacity 1.3s ease, filter 1.3s ease; }
         .slide.visible { opacity: 1; filter: blur(0px); }
-        .backdrop { position: absolute; top: 50px; left: 0; width: 100%; height: calc(100% - 50px); object-fit: cover; object-position: center 25%; border-radius: 5px; z-index: 1; transition: width 0.5s ease; }
-        .logo { position: absolute; top: 55%; left: 23%; transform: translateY(-50%) translateX(-50%) !important; max-height: 50%; max-width: 30%; width: auto; z-index: 5; transition: top 0.5s ease, transform 2.5s ease; text-shadow: -2px 2px 4px rgba(0, 0, 0, 0.5); filter: drop-shadow(1px 1px 1px); }
-        .heading { position: absolute; top: 0; left: 0; width: 100%; height: 50px; background-color: transparent; font-family: "Titillium Web", sans-serif; color: #D3D3D3; font-size: 22px; display: flex; align-items: center; justify-content: flex-start; z-index: 2; padding: 10px; box-sizing: border-box; }
-        .video-container { position: absolute; right: 0; top: 50px; width: 0; height: calc(100% - 50px); overflow: hidden; z-index: 0; transition: width 0.5s ease; }
+        .backdrop { position: absolute; top: 0px; left: 0; width: 100%; height: calc(100% - 50px); object-fit: cover; object-position: center 25%; border-radius: 5px; z-index: 1; transition: width 0.3s ease; }
+        .logo { position: absolute; top: 35%; left: 23%; transform: translateY(-50%) translateX(-50%) !important; max-height: 50%; max-width: 30%; width: auto; z-index: 5; transition: top 0.3s ease, transform 2.5s ease; text-shadow: -2px 2px 4px rgba(0, 0, 0, 0.5); filter: drop-shadow(1px 1px 1px); }
+        .heading { 
+            position: absolute; 
+            top: 10px; /* Moved from top to bottom */
+            left: 88%;
+            transform: translateX(-50%);
+            width: auto;
+            background-color: rgba(0, 0, 0, 0.5); /* Added background for better visibility */
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-family: "Titillium Web", sans-serif; 
+            color: #D3D3D3; 
+            font-size: 1.5em; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 2; 
+            box-sizing: border-box; 
+        }
+        .video-container { position: absolute; right: 0; bottom: 50px; width: 0; height: calc(100% - 50px); overflow: hidden; z-index: 0; transition: width 0.3s ease; }
         .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        .clickable-overlay { position: absolute; top: 50px; left: 0; width: calc(100% - 50px); height: calc(100% - 50px); z-index: 7; cursor: pointer; background: linear-gradient(140deg, rgba(0, 0, 0, 0.89) 0%, rgba(0, 0, 0, 0.69) 6.25%, rgba(0, 0, 0, 0.52) 12.5%, rgba(0, 0, 0, 0.39) 18.75%, rgba(0, 0, 0, 0.28) 25%, rgba(0, 0, 0, 0.2) 31.25%, rgba(0, 0, 0, 0.14) 37.5%, rgba(0, 0, 0, 0.09) 43.75%, rgba(0, 0, 0, 0.05) 50%, rgba(0, 0, 0, 0.03) 56.25%, rgba(0, 0, 0, 0.02) 62.5%, rgba(0, 0, 0, 0.01) 68.75%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0) 81.25%, rgba(0, 0, 0, 0) 87.5%, rgba(0, 0, 0, 0) 93.75%, rgba(0, 0, 0, 0) 100% ); z-index: 10; }
-        .lorem-ipsum { position: absolute; top: 2.0em; width: 100%; text-align: right; font-family: "Titillium Web", sans-serif; font-size: 1.4em; text-shadow: 2px 2px 20px rgba(0, 0, 0, 1); opacity: 0; transition: opacity 0.3s ease, width 0.5s ease; color: #ecf0f1; z-index: 4; box-sizing: border-box; line-height: 1.75em; padding-right: 10px;}
-        .plot { position:absolute; bottom:0; left:0; right:0; color:white; font-family:"Titillium Web", sans-serif; font-size:1.1em; font-style:italic; background:linear-gradient(0deg, rgb(0% 0% 0% / 0.86) 0%, rgb(0% 0% 0% / 0.8566406249999999) 6.25%, rgb(0% 0% 0% / 0.8465625) 12.5%, rgb(0% 0% 0% / 0.829765625) 18.75%, rgb(0% 0% 0% / 0.80625) 25%, rgb(0% 0% 0% / 0.776015625) 31.25%, rgb(0% 0% 0% / 0.7390625) 37.5%, rgb(0% 0% 0% / 0.6953906249999999) 43.75%, rgb(0% 0% 0% / 0.645) 50%, rgb(0% 0% 0% / 0.587890625) 56.25%, rgb(0% 0% 0% / 0.5240625) 62.5%, rgb(0% 0% 0% / 0.453515625) 68.75%, rgb(0% 0% 0% / 0.37625) 75%, rgb(0% 0% 0% / 0.292265625) 81.25%, rgb(0% 0% 0% / 0.20156249999999998) 87.5%, rgb(0% 0% 0% / 0.10414062499999999) 93.75%, rgb(0% 0% 0% / 0) 100%); padding:10px; border-radius:0.2em; z-index:4; box-sizing:border-box; transition:width 0.5s ease; padding-bottom:3px; padding-top:0.5em; line-height:1.3em; text-shadow:1px 1px 4px rgba(0, 0, 0, 1); mask-image:linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 100%); -webkit-mask-image:linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 100%); }
+        .clickable-overlay { 
+            position: absolute; 
+            top: 0px; 
+            left: 0; 
+            width: calc(100% - 50px); 
+            height: calc(100% - 50px); 
+            z-index: 7; 
+            cursor: pointer; 
+            background: linear-gradient(140deg, rgba(0, 0, 0, 0.89) 0%, rgba(0, 0, 0, 0.69) 6.25%, rgba(0, 0, 0, 0.52) 12.5%, rgba(0, 0, 0, 0.39) 18.75%, rgba(0, 0, 0, 0.28) 25%, rgba(0, 0, 0, 0.2) 31.25%, rgba(0, 0, 0, 0.14) 37.5%, rgba(0, 0, 0, 0.09) 43.75%, rgba(0, 0, 0, 0.05) 50%, rgba(0, 0, 0, 0.03) 56.25%, rgba(0, 0, 0, 0.02) 62.5%, rgba(0, 0, 0, 0.01) 68.75%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0) 81.25%, rgba(0, 0, 0, 0) 87.5%, rgba(0, 0, 0, 0) 93.75%, rgba(0, 0, 0, 0) 100% ); 
+            z-index: 10; 
+        }
+        .lorem-ipsum { position: absolute; top: 1.5em; width: 100%; text-align: left; font-family: "Titillium Web", sans-serif; font-size: 1.4em; text-shadow: 3px 3px 20px rgba(0, 0, 0, 1); opacity: 1; transition: opacity 0.3s ease, width 0.3s ease; color: #ecf0f1; z-index: 8; box-sizing: border-box; line-height: 1.75em; padding-left: 30px;}
+        .plot { position:absolute; bottom:50px; left:0; right:10%; color:white; font-family:"Titillium Web", sans-serif; font-size:1.3em; font-style:italic; background: linear-gradient(0deg, rgba(0, 0, 0, 0.86) 0%, rgba(0, 0, 0, 0.645) 50%, rgba(0, 0, 0, 0) 100%); padding:10px; border-radius:0.2em; z-index:4; box-sizing:border-box; transition:width 0.3s ease; padding-bottom:3px; padding-top:0.5em; line-height:1.3em; text-shadow:1px 1px 4px rgba(0, 0, 0, 1); mask-image:linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 100%); -webkit-mask-image:linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 100%); }
         .slide:hover .logo { transform: translateY(-50%) translateX(-50%) scale(1.35) !important; }
         .slide:hover .lorem-ipsum { opacity: 1; }
         .star-icon { color: gold; font-size: 1em; margin-right: 0em; }
-        .emby-scrollbuttons { position: absolute; top: 0; right: 0; display: flex; z-index: 2; }
-        .emby-scrollbuttons-button { background: none; border: none; color: #D3D3D3; font-size: 1.4em; cursor: pointer; padding: 6px; }
-        .emby-scrollbuttons-button:disabled { opacity: 0.5; cursor: default; }
-        .material-icons { font-family: 'Material Icons'; font-weight: normal; font-style: normal; font-size: inherit; display: inline-block; line-height: 1; text-transform: none; letter-spacing: normal; word-wrap: normal; white-space: nowrap; direction: ltr; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; -moz-osx-font-smoothing: grayscale; font-feature-settings: 'liga'; }
+        .emby-scrollbuttons { 
+            position: absolute; 
+            top: 5px;
+            left: 97%;
+            transform: translateX(-50%);
+            display: flex; 
+            z-index: 2; 
+            background-color: rgba(0, 0, 0, 0.5); /* Added background for better visibility */
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .emby-scrollbuttons-button { 
+            background: none; 
+            border: none; 
+            color: #D3D3D3; 
+            font-size: 1.4em; 
+            cursor: pointer; 
+            padding: 6px; 
+            margin: 0 5px;
+        }
+        .emby-scrollbuttons-button:disabled { 
+            opacity: 0.5; 
+            cursor: default; 
+        }
+        .material-icons { 
+            font-family: 'Material Icons'; 
+            font-weight: normal; 
+            font-style: normal; 
+            font-size: inherit; 
+            display: inline-block; 
+            line-height: 1; 
+            text-transform: none; 
+            letter-spacing: normal; 
+            word-wrap: normal; 
+            white-space: nowrap; 
+            direction: ltr; 
+            -webkit-font-smoothing: antialiased; 
+            text-rendering: optimizeLegibility; 
+            -moz-osx-font-smoothing: grayscale; 
+            font-feature-settings: 'liga'; 
+        }
+        /* Accessibility Enhancements */
+        .emby-scrollbuttons-button:focus, .clickable-overlay:focus {
+            outline: 2px solid #FFD700; /* Gold outline for focus indication */
+            outline-offset: 2px;
+        }
+        .error-message {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            font-family: "Titillium Web", sans-serif;
+        }
     </style>
-<script>
+    <script>
         // Global promise to handle YouTube Iframe API readiness
         let youTubeAPIReadyPromise = new Promise((resolve, reject) => {
             // Check if YT is already defined
@@ -60,18 +141,23 @@
 </head>
 <body>
     <div id="slides-container"></div>
-    <div class="heading" id="titleHeading">Spotlight</div>
-    <div class="emby-scrollbuttons">
-        <button id="leftButton" class="emby-scrollbuttons-button paper-icon-button-light" type="button" disabled tabindex="0">
+    
+    <!-- Moved Heading to Bottom -->
+    <div class="heading" id="titleHeading" role="heading" aria-level="1">Spotlight</div>
+    
+    <!-- Moved Navigation Buttons to Bottom and Added ARIA Attributes -->
+    <div class="emby-scrollbuttons" role="navigation" aria-label="Slideshow Navigation">
+        <button id="leftButton" class="emby-scrollbuttons-button paper-icon-button-light" type="button" disabled tabindex="0" aria-label="Previous Movie">
             <span class="material-icons chevron_left" aria-hidden="true">chevron_left</span>
         </button>
-        <button id="rightButton" class="emby-scrollbuttons-button paper-icon-button-light" type="button" tabindex="0">
+        <button id="rightButton" class="emby-scrollbuttons-button paper-icon-button-light" type="button" tabindex="0" aria-label="Next Movie">
             <span class="material-icons chevron_right" aria-hidden="true">chevron_right</span>
         </button>
     </div>
+    
     <script>
         // Initialize global variables
-        let customTitle = 'Spotlight';
+        let customTitle = '';
         let moviesSeriesBoth = 3, shuffleInterval = 10000, plotMaxLength = 250, token = 'de81a85d55024d7b9fa7b11031de7539', useTrailers = true;
         let isChangingSlide = false, player = null, slideChangeTimeout = null, isHomePageActive = false, navigationInterval = null;
         let currentLocation = window.top.location.href;
@@ -89,6 +175,16 @@
 
         // Truncate text to a specified maximum length and append '...' if truncated
         const truncateText = (text, maxLength) => text && text.length > maxLength ? text.substr(0, maxLength) + '...' : text;
+
+        // Display error messages to users
+        const displayError = (message) => {
+            const errorDiv = createElem('div', 'error-message');
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+            setTimeout(() => {
+                if (errorDiv.parentNode) errorDiv.parentNode.removeChild(errorDiv);
+            }, 5000); // Remove after 5 seconds
+        };
 
         // Clean up existing player and timeout
         const cleanup = () => {
@@ -161,7 +257,7 @@
             const additionalInfo = movie.Type === 'Series' ? (movie.ChildCount ? `${movie.ChildCount} Season${movie.ChildCount > 1 ? 's' : ''}` : 'Unknown Seasons') : (movie.RunTimeTicks ? `${Math.round(movie.RunTimeTicks / 600000000)} min` : 'Unknown Runtime');
 
             let loremText = `${premiereYear}   |   ${additionalInfo}`;
-            if (movie.CommunityRating) loremText += `   |   <i class=\"star-icon fas fa-star\"></i> ${movie.CommunityRating.toFixed(1)}`;
+            if (movie.CommunityRating) loremText += `   |   <i class=\"star-icon fas fa-star\" aria-hidden="true"></i> ${movie.CommunityRating.toFixed(1)}`;
             if (movie.CriticRating) loremText += `<img src="https://i.imgur.com/iMfwDk7.png" alt="Rotten Tomatoes" style="width: 1.2em; height: 1.2em; padding-left: 0.5em; vertical-align: sub;"> ${movie.CriticRating}%`;
             const loremDiv = createElem('div', 'lorem-ipsum');
             loremDiv.innerHTML = loremText;
@@ -171,8 +267,15 @@
             newSlide.appendChild(textContainer);
 
             const overlay = createElem('div', 'clickable-overlay', null, null, 'Movie Details');
-            overlay.onclick = () => window.top.Emby.Page.showItem(movie.Id);
+            overlay.setAttribute('role', 'button');
+            overlay.setAttribute('aria-label', 'View Movie Details');
             overlay.setAttribute('tabindex', '0');
+            overlay.onclick = () => window.top.Emby.Page.showItem(movie.Id);
+            overlay.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    window.top.Emby.Page.showItem(movie.Id);
+                }
+            });
             newSlide.appendChild(overlay);
 
             if (useTrailers && movie.RemoteTrailers?.length > 0) {
@@ -219,31 +322,36 @@
                             },
                             events: {
                                 'onReady': event => {
-                                    console.log("YouTube player ready.");
-                                    event.target.playVideo();
-                                    event.target.setVolume(50);
-                                    const videoContainerHeight = videoContainer.clientHeight;
-                                    const calculatedWidth = videoContainerHeight * aspectRatio;
-                                    videoContainer.style.width = `${calculatedWidth}px`;
+									console.log("YouTube player ready.");
+									event.target.playVideo();
+									event.target.setVolume(50);
+									
+									const videoContainerHeight = videoContainer.clientHeight;
+									const calculatedWidth = videoContainerHeight * aspectRatio;
+									videoContainer.style.width = `${calculatedWidth}px`;
 
-                                    const backdropElement = newSlide.querySelector('.backdrop');
-                                    if (backdropElement) {
-                                        backdropElement.style.width = `calc(100% - ${calculatedWidth * 0.6}px)`;
-                                        backdropElement.style.webkitMaskImage = backdropElement.style.maskImage = `linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) ${calculatedWidth}px, rgba(255, 255, 255, 0) 100%)`;
-                                        backdropElement.style.backgroundImage = `url(/Items/${movie.Id}/Images/Backdrop/0)`;
-                                        backdropElement.style.backgroundSize = 'cover';
-                                        backdropElement.style.backgroundPosition = 'center';
-                                    }
+									const backdropElement = newSlide.querySelector('.backdrop');
+									if (backdropElement) {
+										// Change multiplier from 0.7 to 0.8 for 80%
+										backdropElement.style.width = `calc(100% - ${calculatedWidth * 0.8}px)`;
+										
+										// Update mask gradient to match new width
+										backdropElement.style.webkitMaskImage = backdropElement.style.maskImage = `linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) ${65}%, rgba(255, 255, 255, 0) 100%)`;
+										
+										backdropElement.style.backgroundImage = `url(/Items/${movie.Id}/Images/Backdrop/0)`;
+										backdropElement.style.backgroundSize = 'cover';
+										backdropElement.style.backgroundPosition = 'center';
+									}
 
-                                    const videoPlayerElement = newSlide.querySelector('.video-player');
-                                    if (videoPlayerElement) {
-                                        videoPlayerElement.style.webkitMaskImage = videoPlayerElement.style.maskImage = `linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 25%)`;
-                                    }
+									const videoPlayerElement = newSlide.querySelector('.video-player');
+									if (videoPlayerElement) {
+										videoPlayerElement.style.webkitMaskImage = videoPlayerElement.style.maskImage = `linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 25%)`;
+									}
 
-                                    ['plot', 'lorem-ipsum', 'clickable-overlay'].forEach(cls => {
-                                        const element = newSlide.querySelector(`.${cls}`);
-                                        if (element) element.style.width = `calc(100% - ${calculatedWidth}px)`;
-                                    });
+									['plot', 'lorem-ipsum', 'clickable-overlay'].forEach(cls => {
+										const element = newSlide.querySelector(`.${cls}`);
+										if (element) element.style.width = `calc(100% - ${calculatedWidth * 0.8}px)`;
+									}); 
                                 },
                                 'onStateChange': event => {
                                     if (event.data === YT.PlayerState.ENDED) {
@@ -389,6 +497,7 @@
                         })
                         .catch(error => {
                             console.error("Error fetching movie from custom list:", error);
+                            displayError("Failed to load the next movie. Please try again.");
                             startSlideChangeTimer();
                         })
                         .finally(() => { isChangingSlide = false; });
@@ -405,11 +514,13 @@
                                 checkBackdropAndLogo(data.Items[0]);
                             } else {
                                 console.warn("No items found in random fetch.");
+                                displayError("No movies found to display.");
                                 startSlideChangeTimer();
                             }
                         })
                         .catch(error => {
                             console.error("Error fetching random movie:", error);
+                            displayError("Failed to load the next movie. Please try again.");
                             startSlideChangeTimer();
                         })
                         .finally(() => { isChangingSlide = false; });
@@ -447,9 +558,9 @@
                         window.location.href = window.location.href;
                         /* This page reload is strangely critical to ensure
                         we don't double the script vars upon navigating home
-                        using Jellyfin's home button. BUt it makes videos Only
-						load on home not navback. Meh, lesser of two evils;
-						True SPA headache... */
+                        using Jellyfin's home button. But it makes videos only
+                        load on home not navback. Meh, lesser of two evils;
+                        True SPA headache... */
                     }, 500);
                 }
             }	
