@@ -17,7 +17,7 @@
             left: 88%;
             transform: translateX(-50%);
             width: auto;
-            background-color: rgba(0, 0, 0, 0.5); /* Added background for   better visibility */
+            background-color: rgba(0, 0, 0, 0.5); /* Added background for better visibility */
             padding: 10px 20px;
             border-radius: 5px;
             font-family: "Titillium Web", sans-serif; 
@@ -42,8 +42,40 @@
             background: linear-gradient(140deg, rgba(0, 0, 0, 0.89) 0%, rgba(0, 0, 0, 0.69) 6.25%, rgba(0, 0, 0, 0.52) 12.5%, rgba(0, 0, 0, 0.39) 18.75%, rgba(0, 0, 0, 0.28) 25%, rgba(0, 0, 0, 0.2) 31.25%, rgba(0, 0, 0, 0.14) 37.5%, rgba(0, 0, 0, 0.09) 43.75%, rgba(0, 0, 0, 0.05) 50%, rgba(0, 0, 0, 0.03) 56.25%, rgba(0, 0, 0, 0.02) 62.5%, rgba(0, 0, 0, 0.01) 68.75%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0) 81.25%, rgba(0, 0, 0, 0) 87.5%, rgba(0, 0, 0, 0) 93.75%, rgba(0, 0, 0, 0) 100% ); 
             z-index: 10; 
         }
-        .lorem-ipsum { position: absolute; top: 1.2em; width: 100%; text-align: left; font-family: "Titillium Web", sans-serif; font-size: 1.5em; text-shadow: 3px 3px 20px rgba(0, 0, 0, 1); opacity: 1; transition: opacity 0.3s ease, width 0.3s ease; color: #ecf0f1; z-index: 11; box-sizing: border-box; line-height: 1.75em; padding-left: 30px;}
-        .plot { position:absolute; bottom:50px; left:0; right:10%; color:white; font-family:"Titillium Web", sans-serif; font-size:1.3em; font-style:italic; background: linear-gradient(0deg, rgba(0, 0, 0, 0.86) 0%, rgba(0, 0, 0, 0.645) 50%, rgba(0, 0, 0, 0) 100%); padding:10px; border-radius:0.2em; z-index:4; box-sizing:border-box; transition:width 0.3s ease; padding-bottom:3px; padding-top:0.5em; line-height:1.3em; text-shadow:1px 1px 4px rgba(0, 0, 0, 1); mask-image:linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 100%); -webkit-mask-image:linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 100%); }
+        .lorem-ipsum { position: absolute; top: 1.2em; width: 100%; text-align: left; font-family: "Titillium Web", sans-serif; font-size: 1.5em; text-shadow: 3px 3px 20px rgba(0, 0, 0, 1); opacity: 1; transition: opacity 0.3s ease, width 0.3s ease; color: #ecf0f1; z-index: 11; box-sizing: border-box; line-height: 1.75em; padding-left: 2.5vw;}
+		.plot {
+		  padding-left: 2.5vw; /* Actual text padding */
+		  background: none; /* Remove regular background */
+		  position: absolute;
+		  bottom: 50px;
+		  left: 0;
+		  right: 10%;
+		  color: white;
+		  font-family: "Titillium Web", sans-serif;
+		  font-size: 1.3em;
+		  font-style: italic;
+		  border-radius: 0.2em;
+		  z-index: 4;
+		  box-sizing: border-box;
+		  transition: width 0.3s ease;
+		  padding-bottom: 3px;
+		  padding-top: 0.5em;
+		  line-height: 1.3em;
+		  text-shadow: 1px 1px 4px rgba(0, 0, 0, 1);
+		  mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 100%);
+		  -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 100%);
+		}
+
+		/* Inject full-width background with a pseudo-element */
+		.plot::before {
+		  content: '';
+		  position: absolute;
+		  inset: 0;
+		  background: linear-gradient(0deg, rgba(0, 0, 0, 0.86) 0%, rgba(0, 0, 0, 0.645) 50%, rgba(0, 0, 0, 0) 100%);
+		  border-radius: 0.2em;
+		  z-index: -1;
+		  pointer-events: none;
+		}
         .slide:hover .logo { transform: translateY(-50%) translateX(-50%) scale(1.35) !important; }
         .slide:hover .lorem-ipsum { opacity: 1; }
         .star-icon { color: gold; font-size: 1em; margin-right: 0em; }
