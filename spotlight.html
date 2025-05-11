@@ -5,7 +5,24 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 	<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap">
 	
-    <title>Spotlight - A Jellyfin UI Enhancement v5.2</title>
+    <title>Seth's Spotlight - A Jellyfin UI Enhancement v5.3</title>
+	
+	<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const parentStyles = getComputedStyle(window.parent.document.documentElement);
+      const root = document.documentElement;
+      [
+        '--md-sys-color-primary',
+        '--md-sys-color-surface',
+        '--md-sys-color-on-primary',
+        '--md-sys-color-outline'
+      ].forEach(name => {
+        const val = parentStyles.getPropertyValue(name).trim();
+        if (val) root.style.setProperty(name, val);
+      });
+    });
+   </script>
+	
     <style>
         body { margin: 0; padding: 0; overflow: hidden; }
         #slides-container { position: relative; width: 100vw; height: 100vh; }
@@ -67,11 +84,11 @@
 
 		  color: white;
 		  font-family: "Inter", sans-serif;
-		  font-size: clamp(0.65rem, 1vw, 1.6rem);
+		  font-size: clamp(0.65rem, 1.3vw, 1.6rem);
 		  font-weight: 250;
 		  font-variation-settings: "wght" 250;
-
-		  line-height: 1.3em;
+		  font-style: italic;
+		  line-height: 2em;
 
 		  padding: 10px;
 		  padding-top: 0.5em;
@@ -107,7 +124,10 @@
 		  );
 		  z-index: -1;
 		}
-        .slide:hover .logo { transform: translateY(-50%) translateX(-50%) scale(1.35) !important; }
+        .slide:hover .logo {
+			transform: translateY(-50%) translateX(-50%) scale(1.5) !important;
+			opacity: 0.1 !important;
+		}
         .slide:hover .lorem-ipsum { opacity: 1; }
         .star-icon { color: gold; font-size: 1em; margin-right: 0em; }
         .emby-scrollbuttons { 
@@ -124,7 +144,7 @@
         .emby-scrollbuttons-button { 
             background: none; 
             border: none; 
-            color: #D3D3D3; 
+            color: #b2008a; 
             font-size: 1.4em; 
             cursor: pointer; 
             padding: 6px; 
@@ -166,16 +186,16 @@
         }
 		#navButtons button:hover {
 		  background-color: var(--md-sys-color-primary) !important;
-		  border-color: var(--md-sys-color-primary) !important;
+		  border-color: var(--md-sys-color-outline) !important;
 		}
 
 		#navButtons button .material-icons {
-		  color: var(--md-sys-color-surface-container);
+		  color: var(--md-sys-color-on-primary);
 		  transition: color 0.2s ease;
 		}
 
 		#navButtons button:hover .material-icons {
-		  color: var(--md-sys-color-surface-container);
+		  color: var(--md-sys-color-on-primary);
 		}
 
 		#navButtons button:disabled {
@@ -184,10 +204,9 @@
 		}
 		
 		/* Shared hover state for both slide and info button */
-		.slide:hover .logo,
-		#mediaButton:hover ~ #slides-container .slide.visible .logo {
-			transform: translateY(-50%) translateX(-50%) scale(1.35) !important;
-			opacity: 0.3;
+		.spotlight-wrapper:hover .slide.visible .logo {
+			transform: translateY(-50%) translateX(-50%) scale(1.5) !important;
+			opacity: 0.1 !important;
 		}
 				
 		
@@ -226,6 +245,7 @@
     </script>
 </head>
 <body>
+    <div class="spotlight-wrapper">
     <div id="slides-container"></div>
     
 	<div id="navButtons" style="
@@ -545,7 +565,7 @@
                     if (!text) return null;
                     const lines = text.split('\n').filter(Boolean);
                     customTitle = lines.shift() || customTitle;
-                    document.getElementById('titleHeading').textContent = customTitle;
+                    // Not Using list titles for now    document.getElementById('titleHeading').textContent = customTitle;
                     return lines.map(line => line.trim().substring(0, 32));
                 })
                 .catch(error => {
