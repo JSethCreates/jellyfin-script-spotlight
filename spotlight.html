@@ -3,9 +3,11 @@
 <head>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-	<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap">
-	
-    <title>Seth's Spotlight - A Jellyfin UI Enhancement v5.4</title>
+	<link
+	  rel="stylesheet"
+	  href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap"
+	/>
+    <title>Seth's Spotlight - A Jellyfin UI Enhancement v5.5.1</title>
 	<script>
     document.addEventListener('DOMContentLoaded', () => {
       const parentStyles = getComputedStyle(window.parent.document.documentElement);
@@ -80,21 +82,20 @@
         .lorem-ipsum { position: absolute; top: 5vh; width: 100%; text-align: left; font-family: "Titillium Web", sans-serif; font-size: 1.5em; text-shadow: 3px 3px 20px rgba(0, 0, 0, 1); opacity: 1; transition: opacity 0.3s ease, width 0.3s ease; color: #ecf0f1; z-index: 11; box-sizing: border-box; line-height: 1.75em; padding-left: 4vw;}
         .plot {
 		  position: absolute;
-		  bottom: 1.1em;
+		  bottom: 1.5em;
 
 
 		  color: var(--color-text-body);
 		  font-family: "Inter", sans-serif;
-		  font-size: clamp(0.65rem, 1.3vw, 1.6rem);
+		  font-size: 19px;
 		  font-weight: 200;
-		  font-variation-settings: "wght" 200;
 		  font-style: italic;
 		  line-height: 2em;
 
 		  padding: 10px;
 		  padding-top: 2.5em;
 		  padding-bottom: 0em;
-		  padding-left: 4vw;
+		  padding-left: 4.5vw;
 		  padding-right: 2vw;
 
 		  box-sizing: border-box;
@@ -108,13 +109,12 @@
 		  width: 99.8vw;         /* Force full screen width - scrollbar */
 		  min-width: 99.8vw;     /* Prevent it from shrinking below screen width */
 		  display: block;  
-		  
-		  
+		  		  
 		}
 		.plot::before {
 		  content: '';
 		  position: absolute;
-		  bottom: 1.25em;
+		  bottom: 1.15em;
 		  left: -100vw;
 		  width: 200vw;
 		  height: 25px;
@@ -260,7 +260,7 @@
 	<div id="navButtons" style="
 		position: absolute;
 		bottom: 3.9em;
-		right: .7em;
+		right: 1em;
 		display: flex;
 		z-index: 2;
 		background: none;
