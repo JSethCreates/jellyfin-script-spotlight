@@ -7,7 +7,7 @@
 	  rel="stylesheet"
 	  href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap"
 	/>
-    <title>Seth's Spotlight - A Jellyfin UI Enhancement v5.5.1</title>
+    <title>Seth's Spotlight - A Jellyfin UI Enhancement v5.5.2</title>
 	<script>
     document.addEventListener('DOMContentLoaded', () => {
       const parentStyles = getComputedStyle(window.parent.document.documentElement);
@@ -114,7 +114,7 @@
 		.plot::before {
 		  content: '';
 		  position: absolute;
-		  bottom: 1.15em;
+		  bottom: 1.1em;
 		  left: -100vw;
 		  width: 200vw;
 		  height: 25px;
@@ -199,7 +199,7 @@
 		}
 
 		#navButtons button .material-icons {
-		  color: var(--md-sys-color-outline);
+		  color: var(--md-sys-color-on-primary-container);
 		  transition: color 0.2s ease;
 		}
 
@@ -268,7 +268,7 @@
 
 	<!-- Left (first child) -->
 	  <button id="leftButton" type="button" disabled tabindex="0" aria-label="Previous Movie"
-			  style="border: 2px solid var(--md-sys-color-outline); border-radius: 9999px 0 0 9999px;
+			  style="border: 1px solid var(--md-sys-color-outline); border-radius: 9999px 0 0 9999px;
 					 padding: 0.15em 0.9em; margin: 0; font-family: 'Titillium Web', sans-serif;
 					 font-size: 1.2em; cursor: pointer;">
 		<span class="material-icons" aria-hidden="true">chevron_left</span>
@@ -276,7 +276,7 @@
 
 	  <!-- Media Info -->
 	  <button id="mediaButton" type="button" tabindex="0" aria-label="View Media Info"
-			  style="border: 2px solid var(--md-sys-color-outline); border-left: none;
+			  style="border: 1px solid var(--md-sys-color-outline); border-left: none;
 					 border-radius: 0; padding: 0.15em 0.9em; margin: 0;
 					 font-family: 'Titillium Web', sans-serif; font-size: 1.2em;
 					 cursor: pointer;">
@@ -285,7 +285,7 @@
 
 	  <!-- Play/Pause (hidden initially) -->
 	  <button id="playPauseButton" type="button" tabindex="0" aria-label="Toggle Trailer Playback"
-			  style="display: none; border: 2px solid var(--md-sys-color-outline); border-left: none;
+			  style="display: none; border: 1px solid var(--md-sys-color-outline); border-left: none;
 					 border-radius: 0; padding: 0.15em 0.9em; margin: 0;
 					 font-family: 'Titillium Web', sans-serif; font-size: 1.2em;
 					 cursor: pointer;">
@@ -294,7 +294,7 @@
 
 	  <!-- Right (last child) -->
 	  <button id="rightButton" type="button" tabindex="0" aria-label="Next Movie"
-			  style="border: 2px solid var(--md-sys-color-outline); border-left: none;
+			  style="border: 1px solid var(--md-sys-color-outline); border-left: none;
 					 border-radius: 0 9999px 9999px 0; padding: 0.15em 0.9em; margin: 0;
 					 font-family: 'Titillium Web', sans-serif; font-size: 1.2em;
 					 cursor: pointer;">
