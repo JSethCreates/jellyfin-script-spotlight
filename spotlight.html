@@ -1,245 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Seth's Spotlight - A Jellyfin UI Enhancement v6.0.2</title>
+
+    <!-- Fonts and Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-	<link
-	  rel="stylesheet"
-	  href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap"
-	/>
-    <title>	
-	/* ============================================================= */
-	/*   Seth's Spotlight - A Jellyfin UI Enhancement v6.0.1         */
-	/* ============================================================= */
-	</title>
-	
-	<script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const parentStyles = getComputedStyle(window.parent.document.documentElement);
-      const root = document.documentElement;
-      [
-        '--md-sys-color-primary',
-		'--md-sys-color-primary-container',
-		'--md-sys-color-on-primary',
-		'--md-sys-color-on-primary-container',
-		'--md-sys-color-outline',
-		'--color-text-body'
-      ].forEach(name => {
-        const val = parentStyles.getPropertyValue(name).trim();
-        if (val) root.style.setProperty(name, val);
-      });
-    });
-   </script>
-	
-    <style>
-        body { margin: 0; padding: 0; overflow: hidden; }
-        #slides-container { position: relative; width: 100vw; height: 100vh; }
-        .slide { position: absolute; width: 100%; height: 100%; opacity: 0; filter: blur(5px); transition: opacity 1.3s ease, filter 1.3s ease; }
-        .slide.visible { opacity: 1; filter: blur(0px); }
-        .backdrop { position: absolute; top: 0px; left: 0; width: 100%; height: calc(100% - 50px); object-fit: cover; object-position: center 25%; border-radius: 5px; z-index: 1; transition: width 0.3s ease; }
-		.logo {
-			position: absolute;
-			top: 35%;
-			left: 23%;
-			transform: translateY(-50%) translateX(-50%) !important;
-			max-height: 50%;
-			max-width: 30%;
-			width: auto;
-			z-index: 5;
-			text-shadow: -2px 2px 4px rgba(0, 0, 0, 0.5);
-			filter: drop-shadow(1px 1px 1px);
-			opacity: 1;
-			transition: 
-				transform 2.5s ease-in-out,
-				opacity 2.5s ease-in-out;
-		}
-        .heading { 
-            position: absolute; 
-            bottom: 10px; /* Moved from top to bottom */
-            left: 88%;
-            transform: translateX(-50%);
-            width: auto;
-            background-color: rgba(0, 0, 0, 0.5); /* Added background for better visibility */
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-family: "Inter", sans-serif; 
-            color: #D3D3D3; 
-            font-size: 1.5em; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            z-index: 2; 
-            box-sizing: border-box; 
-        }
-        .video-container { position: absolute; right: 0; bottom: 50px; width: 0; height: calc(100% - 50px); overflow: hidden; z-index: 0; transition: width 0.3s ease; }
-        .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        .clickable-overlay { 
-            position: absolute; 
-            top: 0px; 
-            left: 0; 
-            width: calc(100% - 50px); 
-            height: calc(100% - 50px); 
-            z-index: 7; 
-            cursor: pointer; 
-            background: linear-gradient(140deg, rgba(0, 0, 0, 0.89) 0%, rgba(0, 0, 0, 0.69) 6.25%, rgba(0, 0, 0, 0.52) 12.5%, rgba(0, 0, 0, 0.39) 18.75%, rgba(0, 0, 0, 0.28) 25%, rgba(0, 0, 0, 0.2) 31.25%, rgba(0, 0, 0, 0.14) 37.5%, rgba(0, 0, 0, 0.09) 43.75%, rgba(0, 0, 0, 0.05) 50%, rgba(0, 0, 0, 0.03) 56.25%, rgba(0, 0, 0, 0.02) 62.5%, rgba(0, 0, 0, 0.01) 68.75%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0) 81.25%, rgba(0, 0, 0, 0) 87.5%, rgba(0, 0, 0, 0) 93.75%, rgba(0, 0, 0, 0) 100% ); 
-            z-index: 10; 
-        }
-        .lorem-ipsum { position: absolute; top: 5vh; width: 100%; text-align: left; font-family: "Titillium Web", sans-serif; font-size: 1.5em; text-shadow: 3px 3px 20px rgba(0, 0, 0, 1); opacity: 1; transition: opacity 0.3s ease, width 0.3s ease; color: #ecf0f1; z-index: 11; box-sizing: border-box; line-height: 1.75em; padding-left: 4vw;}
-        .plot {
-		  position: absolute;
-		  bottom: 1.5em;
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap"/>
+    <link rel="stylesheet" href="spotlight.css">
 
-
-		  color: var(--color-text-body);
-		  font-family: "Inter", sans-serif;
-		  font-size: 19px;
-		  font-weight: 200;
-		  font-style: italic;
-		  line-height: 2em;
-
-		  padding: 10px;
-		  padding-top: 2.5em;
-		  padding-bottom: 0em;
-		  padding-left: 4.5vw;
-		  padding-right: 2vw;
-
-		  box-sizing: border-box;
-		  z-index: 4;
-		  transition: width 0.3s ease;
-		  isolation: isolate;
-		  white-space: nowrap;
-		  overflow: hidden;
-          text-overflow: ellipsis;
-		  
-		  width: 99.8vw;         /* Force full screen width - scrollbar */
-		  min-width: 99.8vw;     /* Prevent it from shrinking below screen width */
-		  display: block;  
-		  		  
-		}
-		.plot::before {
-		  content: '';
-		  position: absolute;
-		  bottom: 1.1em;
-		  left: -100vw;
-		  width: 200vw;
-		  height: 25px;
-		  background: linear-gradient(
-			to bottom,
-			rgba(28, 27, 31, 0), 
-			rgba(28, 27, 31, 1)
-		  );
-		  z-index: -1;
-		}
-        .slide:hover .logo {
-			transform: translateY(-50%) translateX(-50%) scale(1.5) !important;
-			opacity: 0.1 !important;
-		}
-        .slide:hover .lorem-ipsum { opacity: 1; }
-        .star-icon { color: gold; font-size: 1em; margin-right: 0em; }
-        .emby-scrollbuttons { 
-            position: absolute; 
-            bottom: 55px;
-            left: 80%;
-            transform: translateX(-50%);
-            display: flex; 
-            z-index: 2; 
-            background-color: rgba(0, 0, 0, 0.5); /* Added background for better visibility */
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .emby-scrollbuttons-button { 
-            background: none; 
-            border: none; 
-            color: #b2008a; 
-            font-size: 1.4em; 
-            cursor: pointer; 
-            padding: 6px; 
-            margin: 0 5px;
-        }
-        .emby-scrollbuttons-button:disabled { 
-            opacity: 0.5; 
-            cursor: default; 
-        }
-        .material-icons { 
-            font-family: 'Material Icons'; 
-            font-weight: normal; 
-            font-style: normal; 
-            font-size: inherit; 
-            display: inline-block; 
-            line-height: 1; 
-            text-transform: none; 
-            letter-spacing: normal; 
-            word-wrap: normal; 
-            white-space: nowrap; 
-            direction: ltr; 
-            -webkit-font-smoothing: antialiased; 
-            text-rendering: optimizeLegibility; 
-            -moz-osx-font-smoothing: grayscale; 
-            font-feature-settings: 'liga'; 
-        }
-
-        .error-message {
-            position: fixed;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(255, 0, 0, 0.8);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            z-index: 1000;
-            font-family: "Titillium Web", sans-serif;
-        }
-		
-		#navButtons button {
-		  background-color: var(--md-sys-color-primary-container) !important;
-		  color: var(--md-sys-color-on-primary-container) !important;
-		  border-color: var(--md-sys-color-outline) !important;
-		}
-		
-		#navButtons button:hover {
-		  background-color: var(--md-sys-color-primary) !important;
-		  color: var(--md-sys-color-on-primary) !important;
-		  border-color: var(--md-sys-color-outline) !important;
-		}
-
-		#navButtons button .material-icons {
-		  color: var(--md-sys-color-on-primary-container);
-		  transition: color 0.2s ease;
-		}
-
-		#navButtons button:hover .material-icons {
-		  color: var(--md-sys-color-on-primary);
-		}
-
-		#navButtons button:disabled {
-		  opacity: 0.5;
-		  cursor: default;
-		}
-		
-		/* Shared hover state for both slide and info button */
-		.spotlight-wrapper:hover .slide.visible .logo {
-			transform: translateY(-50%) translateX(-50%) scale(1.5) !important;
-			opacity: 0.1 !important;
-		}
-				
-		
-    </style>
+    <!-- Theme Variable Injection from Parent with Fallbacks -->
     <script>
-        // Global promise to handle YouTube Iframe API readiness
+        document.addEventListener('DOMContentLoaded', () => {
+            const parentStyles = getComputedStyle(window.parent.document.documentElement);
+            const root = document.documentElement;
+            const fallbackColors = {
+                '--md-sys-color-primary': '#b19ee0',
+                '--md-sys-color-primary-container': '#4f378a',
+                '--md-sys-color-on-primary': '#381e72',
+                '--md-sys-color-on-primary-container': '#e9ddff',
+                '--md-sys-color-outline': '#948f99',
+                '--color-text-body': '#e6e1e6'
+            };
+
+            Object.entries(fallbackColors).forEach(([name, fallback]) => {
+                const val = parentStyles.getPropertyValue(name).trim() || fallback;
+                root.style.setProperty(name, val);
+            });
+        });
+
+        // Load and initialize YouTube Iframe API
         let youTubeAPIReadyPromise = new Promise((resolve, reject) => {
-            // Check if YT is already defined
             if (window.YT && window.YT.Player) {
                 console.log("YouTube Iframe API already loaded.");
                 resolve(window.YT);
             } else {
-                // Define the callback for when the YouTube Iframe API is ready
-                window.onYouTubeIframeAPIReady = function() {
+                window.onYouTubeIframeAPIReady = function () {
                     console.log("YouTube Iframe API is ready.");
                     resolve(window.YT);
                 };
 
-                // Load YouTube Iframe API if not already loaded
                 if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
                     const tag = document.createElement('script');
                     tag.src = "https://www.youtube.com/iframe_api";
@@ -250,84 +50,40 @@
                     console.log("YouTube Iframe API script already present.");
                 }
 
-                // Set a timeout to reject the promise if API doesn't load
                 setTimeout(() => {
                     reject(new Error("YouTube Iframe API failed to load within expected time."));
-                }, 10000); // 10 seconds timeout
+                }, 10000);
             }
         });
     </script>
 </head>
 <body>
     <div class="spotlight-wrapper">
-    <div id="slides-container"></div>
-    
-	<div id="navButtons" style="
-		position: absolute;
-		bottom: 3.9em;
-		right: 1em;
-		display: flex;
-		z-index: 2;
-		background: none;
-		border-radius: 9999px;">
-
-	<!-- Left (first child) -->
-	  <button id="leftButton" type="button" disabled tabindex="0" aria-label="Previous Movie"
-			  style="border: 1px solid var(--md-sys-color-outline); border-radius: 9999px 0 0 9999px;
-					 padding: 0.15em 0.9em; margin: 0; font-family: 'Titillium Web', sans-serif;
-					 font-size: 1.2em; cursor: pointer;">
-		<span class="material-icons" aria-hidden="true">chevron_left</span>
-	  </button>
-
-	  <!-- Media Info -->
-	  <button id="mediaButton" type="button" tabindex="0" aria-label="View Media Info"
-			  style="border: 1px solid var(--md-sys-color-outline); border-left: none;
-					 border-radius: 0; padding: 0.15em 0.9em; margin: 0;
-					 font-family: 'Titillium Web', sans-serif; font-size: 1.2em;
-					 cursor: pointer;">
-		<span class="material-icons" aria-hidden="true">info</span>
-	  </button>
-
-	  <!-- Play/Pause (hidden initially) -->
-	  <button id="playPauseButton" type="button" tabindex="0" aria-label="Toggle Trailer Playback"
-			  style="display: none; border: 1px solid var(--md-sys-color-outline); border-left: none;
-					 border-radius: 0; padding: 0.15em 0.9em; margin: 0;
-					 font-family: 'Titillium Web', sans-serif; font-size: 1.2em;
-					 cursor: pointer;">
-		<span class="material-icons" aria-hidden="true">play_arrow</span>
-	  </button>
-
-	  <!-- Right (last child) -->
-	  <button id="rightButton" type="button" tabindex="0" aria-label="Next Movie"
-			  style="border: 1px solid var(--md-sys-color-outline); border-left: none;
-					 border-radius: 0 9999px 9999px 0; padding: 0.15em 0.9em; margin: 0;
-					 font-family: 'Titillium Web', sans-serif; font-size: 1.2em;
-					 cursor: pointer;">
-		<span class="material-icons" aria-hidden="true">chevron_right</span>
-  </button>
-</div>
-		
+        <div id="slides-container"></div>
+        <div id="navButtons">
+            <button id="leftButton" type="button" disabled tabindex="0" aria-label="Previous Movie">
+                <span class="material-icons" aria-hidden="true">chevron_left</span>
+            </button>
+            <button id="mediaButton" type="button" tabindex="0" aria-label="View Media Info">
+                <span class="material-icons" aria-hidden="true">info</span>
+            </button>
+            <button id="playPauseButton" type="button" tabindex="0" aria-label="Toggle Trailer Playback">
+                <span class="material-icons" aria-hidden="true">play_arrow</span>
+            </button>
+            <button id="rightButton" type="button" tabindex="0" aria-label="Next Movie">
+                <span class="material-icons" aria-hidden="true">chevron_right</span>
+            </button>
+        </div>
+    </div>
+	
+			
     <script>
         // Initialize global variables
         let customTitle = '';
-        let moviesSeriesBoth = 3, shuffleInterval = 10000, plotMaxLength = 250, useTrailers = true;
+        let moviesSeriesBoth = 3, shuffleInterval = 10000, plotMaxLength = 250, token = 'de81a85d55024d7b9fa7b11031de7539', useTrailers = true;
         let isChangingSlide = false, player = null, slideChangeTimeout = null, isHomePageActive = false, navigationInterval = null;
         let currentLocation = window.top.location.href;
         let movieList = [], currentMovieIndex = 0, lastMovie = null, currentMovie = null, currentSlideElement = null;
-
-		// — fetch our API token from Jellyfin’s embedded init data —
-		const initEl = document.getElementById('jellyfin-initialization-data');
-		let token;
-		if (initEl) {
-		  try {
-			const initJson = JSON.parse(initEl.textContent);
-			token = initJson.AccessToken;
-		  } catch (e) {
-			console.error('Failed to parse Jellyfin init data:', e);
-		  }
-		} else {
-		  console.warn('No <div id="jellyfin-initialization-data"> found; token will be undefined');
-		}
 
         // Create and return a new DOM element with specified attributes
         const createElem = (tag, className, textContent, src, alt) => {
@@ -430,7 +186,11 @@
 
             textContainer.appendChild(loremDiv);
             textContainer.appendChild(createElem('div', 'plot', truncateText(movie.Overview, plotMaxLength)));
+			
             newSlide.appendChild(textContainer);
+			
+			const fadeDiv = createElem('div', 'bottom-fade');
+            newSlide.appendChild(fadeDiv);         // keep it before the overlay
 
             const overlay = createElem('div', 'clickable-overlay', null, null, 'Movie Details');
             overlay.setAttribute('role', 'button');
