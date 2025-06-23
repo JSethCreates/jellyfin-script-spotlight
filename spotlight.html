@@ -7,7 +7,12 @@
 	  rel="stylesheet"
 	  href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap"
 	/>
-    <title>Seth's Spotlight - A Jellyfin UI Enhancement v5.5.2</title>
+    <title>	
+	/* ============================================================= */
+	/*   Seth's Spotlight - A Jellyfin UI Enhancement v6.0.1         */
+	/* ============================================================= */
+	</title>
+	
 	<script>
     document.addEventListener('DOMContentLoaded', () => {
       const parentStyles = getComputedStyle(window.parent.document.documentElement);
@@ -305,10 +310,24 @@
     <script>
         // Initialize global variables
         let customTitle = '';
-        let moviesSeriesBoth = 3, shuffleInterval = 10000, plotMaxLength = 250, token = 'de81a85d55024d7b9fa7b11031de7539', useTrailers = true;
+        let moviesSeriesBoth = 3, shuffleInterval = 10000, plotMaxLength = 250, useTrailers = true;
         let isChangingSlide = false, player = null, slideChangeTimeout = null, isHomePageActive = false, navigationInterval = null;
         let currentLocation = window.top.location.href;
         let movieList = [], currentMovieIndex = 0, lastMovie = null, currentMovie = null, currentSlideElement = null;
+
+		// — fetch our API token from Jellyfin’s embedded init data —
+		const initEl = document.getElementById('jellyfin-initialization-data');
+		let token;
+		if (initEl) {
+		  try {
+			const initJson = JSON.parse(initEl.textContent);
+			token = initJson.AccessToken;
+		  } catch (e) {
+			console.error('Failed to parse Jellyfin init data:', e);
+		  }
+		} else {
+		  console.warn('No <div id="jellyfin-initialization-data"> found; token will be undefined');
+		}
 
         // Create and return a new DOM element with specified attributes
         const createElem = (tag, className, textContent, src, alt) => {
