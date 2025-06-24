@@ -1,0 +1,322 @@
+/* spotlight.css - Professional Formatting */
+
+/* Base Reset */
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Slides Container */
+#slides-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Slide Styling */
+.slide {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  filter: blur(5px);
+  transition: opacity 1.3s ease, filter 1.3s ease;
+}
+
+.slide.visible {
+  opacity: 1;
+  filter: blur(0);
+}
+
+/* Backdrop Image */
+.backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 50px);
+  object-fit: cover;
+  object-position: center 25%;
+  border-radius: 5px;
+  z-index: 1;
+  transition: width 0.3s ease;
+}
+
+/* Logo */
+.logo {
+  position: absolute;
+  top: 35%;
+  left: 23%;
+  transform: translate(-50%, -50%);
+  max-height: 50%;
+  max-width: 30%;
+  width: auto;
+  z-index: 5;
+  opacity: 1;
+  filter: drop-shadow(1px 1px 1px);
+  text-shadow: -2px 2px 4px rgba(0, 0, 0, 0.5);
+  transition: transform 2.5s ease-in-out, opacity 2.5s ease-in-out;
+}
+
+/* Heading */
+.heading {
+  position: absolute;
+  bottom: 10px;
+  left: 88%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 5px;
+  font-family: "Inter", sans-serif;
+  font-size: 1.5em;
+  color: #d3d3d3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  z-index: 2;
+}
+
+/* Video Container */
+.video-container {
+  position: absolute;
+  right: 0;
+  bottom: 50px;
+  width: 0;
+  height: calc(100% - 50px);
+  overflow: hidden;
+  z-index: 0;
+  transition: width 0.3s ease;
+}
+
+/* Video Player */
+.video-player {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Clickable Overlay Gradient */
+.clickable-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% - 50px);
+  height: calc(100% - 50px);
+  background: linear-gradient(
+    140deg,
+    rgba(0, 0, 0, 0.89) 0%,
+    rgba(0, 0, 0, 0.69) 6.25%,
+    rgba(0, 0, 0, 0.52) 12.5%,
+    rgba(0, 0, 0, 0.39) 18.75%,
+    rgba(0, 0, 0, 0.28) 25%,
+    rgba(0, 0, 0, 0.2) 31.25%,
+    rgba(0, 0, 0, 0.14) 37.5%,
+    rgba(0, 0, 0, 0.09) 43.75%,
+    rgba(0, 0, 0, 0.05) 50%,
+    rgba(0, 0, 0, 0.03) 56.25%,
+    rgba(0, 0, 0, 0.02) 62.5%,
+    rgba(0, 0, 0, 0.01) 68.75%,
+    rgba(0, 0, 0, 0) 75%
+  );
+  z-index: 10;
+  cursor: pointer;
+}
+
+/* Lorem Ipsum Text (Year · Rating · Runtime) */
+.lorem-ipsum {
+  position: absolute;
+  top: 5vh;
+  width: 100%;
+  padding-left: 4vw;
+  box-sizing: border-box;
+  font-family: "Titillium Web", sans-serif;
+  font-size: 1.5em;
+  line-height: 1.75em;
+  color: #ecf0f1;
+  text-shadow: 3px 3px 20px rgba(0, 0, 0, 1);
+  opacity: 1;
+  transition: opacity 0.3s ease, width 0.3s ease;
+  text-align: left;
+  z-index: 11;
+}
+
+/* Plot Text */
+.plot {
+  position: absolute;
+  bottom: 1.5em;
+  width: 99.8vw;
+  min-width: 99.8vw;
+  padding: 2.5em 2vw 0 4.5vw;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+  font-size: 19px;
+  font-weight: 200;
+  font-style: italic;
+  line-height: 2em;
+  color: var(--color-text-body);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  isolation: isolate;
+  transition: width 0.3s ease;
+  z-index: 11;
+}
+
+.bottom-fade {
+  position: absolute;
+  bottom: 50px;                /* aligns with bottom edge of wrapper */
+  left: 0;
+  width: 100%;             /* stretch full width */
+  height: 25px;
+  pointer-events: none;     /* let clicks pass through */
+  background: linear-gradient(
+    to bottom,
+    rgba(28, 27, 31, 0),
+    rgba(28, 27, 31, 1)
+  );
+  z-index: 10;              /* below the plot text */
+}
+
+
+/* Hover Effects */
+.slide:hover .lorem-ipsum {
+  opacity: 1;
+}
+
+.slide:hover .logo,
+.spotlight-wrapper:hover .slide.visible .logo {
+  transform: translate(-50%, -50%) scale(1.5) !important;
+  opacity: 0.1 !important;
+}
+
+/* Star Icon */
+.star-icon {
+  font-size: 1em;
+  margin-right: 0;
+  color: gold;
+}
+
+/* Emby Scroll Buttons */
+.emby-scrollbuttons {
+  position: absolute;
+  bottom: 55px;
+  left: 80%;
+  transform: translateX(-50%);
+  display: flex;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 5px;
+  z-index: 2;
+}
+
+.emby-scrollbuttons-button {
+  background: none;
+  border: none;
+  padding: 6px;
+  margin: 0 5px;
+  font-size: 1.4em;
+  color: #b2008a;
+  cursor: pointer;
+}
+
+.emby-scrollbuttons-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Material Icons */
+.material-icons {
+  display: inline-block;
+  font-family: "Material Icons";
+  font-style: normal;
+  font-weight: normal;
+  font-size: inherit;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "liga";
+}
+
+/* Error Message */
+.error-message {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  background-color: rgba(255, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 5px;
+  font-family: "Titillium Web", sans-serif;
+  z-index: 1000;
+}
+
+/* Navigation Buttons Container */
+#navButtons {
+  position: absolute;
+  bottom: 3.9em;
+  right: 1em;
+  display: flex;
+  z-index: 2;
+  background: none;
+  border-radius: 9999px;
+}
+
+/* Navigation Buttons */
+#navButtons button {
+  border: 1px solid var(--md-sys-color-outline);
+  background: none;
+  padding: 0.15em 0.9em;
+  margin: 0;
+  font-family: "Titillium Web", sans-serif;
+  font-size: 1.2em;
+  cursor: pointer;
+  background-color: var(--md-sys-color-primary-container) !important;
+  color: var(--md-sys-color-on-primary-container) !important;
+  border-color: var(--md-sys-color-outline) !important;
+}
+
+#navButtons button + button {
+  border-left: none;
+}
+
+/* Corner Rounding */
+#leftButton {
+  border-radius: 9999px 0 0 9999px;
+}
+#mediaButton,
+#playPauseButton {
+  border-radius: 0;
+}
+#rightButton {
+  border-radius: 0 9999px 9999px 0;
+}
+
+#navButtons button:hover {
+  background-color: var(--md-sys-color-primary) !important;
+  color: var(--md-sys-color-on-primary) !important;
+  border-color: var(--md-sys-color-outline) !important;
+}
+
+#navButtons button .material-icons {
+  color: var(--md-sys-color-on-primary-container);
+  transition: color 0.2s ease;
+}
+
+#navButtons button:hover .material-icons {
+  color: var(--md-sys-color-on-primary);
+}
+
+#navButtons button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Seth's Spotlight - A Jellyfin UI Enhancement v6.2.1</title>
+    <title>Seth's Spotlight - A Jellyfin UI Enhancement v7.0.1</title>
 
     <!-- Fonts and Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -10,37 +10,36 @@
     <link rel="stylesheet" href="spotlight.css">
 
     <!-- Theme Variable Injection from Parent with Fallbacks -->
-	<script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const parentStyles = getComputedStyle(window.parent.document.documentElement);
-      const root = document.documentElement;
-      [
-        '--md-sys-color-primary',
-		'--md-sys-color-primary-container',
-		'--md-sys-color-on-primary',
-		'--md-sys-color-on-primary-container',
-		'--md-sys-color-outline',
-		'--color-text-body'
-      ].forEach(name => {
-        const val = parentStyles.getPropertyValue(name).trim();
-        if (val) root.style.setProperty(name, val);
-      });
-    });
-   
-        // Global promise to handle YouTube Iframe API readiness
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const parentStyles = getComputedStyle(window.parent.document.documentElement);
+            const root = document.documentElement;
+            const fallbackColors = {
+                '--md-sys-color-primary': '#b19ee0',
+                '--md-sys-color-primary-container': '#4f378a',
+                '--md-sys-color-on-primary': '#381e72',
+                '--md-sys-color-on-primary-container': '#e9ddff',
+                '--md-sys-color-outline': '#948f99',
+                '--color-text-body': '#e6e1e6'
+            };
+
+            Object.entries(fallbackColors).forEach(([name, fallback]) => {
+                const val = parentStyles.getPropertyValue(name).trim() || fallback;
+                root.style.setProperty(name, val);
+            });
+        });
+
+        // Load and initialize YouTube Iframe API
         let youTubeAPIReadyPromise = new Promise((resolve, reject) => {
-            // Check if YT is already defined
             if (window.YT && window.YT.Player) {
                 console.log("YouTube Iframe API already loaded.");
                 resolve(window.YT);
             } else {
-                // Define the callback for when the YouTube Iframe API is ready
-                window.onYouTubeIframeAPIReady = function() {
+                window.onYouTubeIframeAPIReady = function () {
                     console.log("YouTube Iframe API is ready.");
                     resolve(window.YT);
                 };
 
-                // Load YouTube Iframe API if not already loaded
                 if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
                     const tag = document.createElement('script');
                     tag.src = "https://www.youtube.com/iframe_api";
@@ -51,67 +50,37 @@
                     console.log("YouTube Iframe API script already present.");
                 }
 
-                // Set a timeout to reject the promise if API doesn't load
                 setTimeout(() => {
                     reject(new Error("YouTube Iframe API failed to load within expected time."));
-                }, 10000); // 10 seconds timeout
+                }, 10000);
             }
         });
     </script>
 </head>
 <body>
     <div class="spotlight-wrapper">
-    <div id="slides-container"></div>
-    
-	<div id="navButtons" style="
-		position: absolute;
-		bottom: 3.9em;
-		right: .7em;
-		display: flex;
-		z-index: 2;
-		background: none;
-		border-radius: 9999px;">
-
-	<!-- Left (first child) -->
-	  <button id="leftButton" type="button" disabled tabindex="0" aria-label="Previous Movie"
-			  style="border: 2px solid var(--md-sys-color-outline); border-radius: 9999px 0 0 9999px;
-					 padding: 0.15em 0.9em; margin: 0; font-family: 'Titillium Web', sans-serif;
-					 font-size: 1.2em; cursor: pointer;">
-		<span class="material-icons" aria-hidden="true">chevron_left</span>
-	  </button>
-
-	  <!-- Media Info -->
-	  <button id="mediaButton" type="button" tabindex="0" aria-label="View Media Info"
-			  style="border: 2px solid var(--md-sys-color-outline); border-left: none;
-					 border-radius: 0; padding: 0.15em 0.9em; margin: 0;
-					 font-family: 'Titillium Web', sans-serif; font-size: 1.2em;
-					 cursor: pointer;">
-		<span class="material-icons" aria-hidden="true">info</span>
-	  </button>
-
-	  <!-- Play/Pause (hidden initially) -->
-	  <button id="playPauseButton" type="button" tabindex="0" aria-label="Toggle Trailer Playback"
-			  style="display: none; border: 2px solid var(--md-sys-color-outline); border-left: none;
-					 border-radius: 0; padding: 0.15em 0.9em; margin: 0;
-					 font-family: 'Titillium Web', sans-serif; font-size: 1.2em;
-					 cursor: pointer;">
-		<span class="material-icons" aria-hidden="true">play_arrow</span>
-	  </button>
-
-	  <!-- Right (last child) -->
-	  <button id="rightButton" type="button" tabindex="0" aria-label="Next Movie"
-			  style="border: 2px solid var(--md-sys-color-outline); border-left: none;
-					 border-radius: 0 9999px 9999px 0; padding: 0.15em 0.9em; margin: 0;
-					 font-family: 'Titillium Web', sans-serif; font-size: 1.2em;
-					 cursor: pointer;">
-		<span class="material-icons" aria-hidden="true">chevron_right</span>
-  </button>
-</div>
-		
+        <div id="slides-container"></div>
+        <div id="navButtons">
+            <button id="leftButton" type="button" disabled tabindex="0" aria-label="Previous Movie">
+                <span class="material-icons" aria-hidden="true">chevron_left</span>
+            </button>
+            <button id="mediaButton" type="button" tabindex="0" aria-label="View Media Info">
+                <span class="material-icons" aria-hidden="true">info</span>
+            </button>
+            <button id="playPauseButton" type="button" tabindex="0" aria-label="Toggle Trailer Playback">
+                <span class="material-icons" aria-hidden="true">play_arrow</span>
+            </button>
+            <button id="rightButton" type="button" tabindex="0" aria-label="Next Movie">
+                <span class="material-icons" aria-hidden="true">chevron_right</span>
+            </button>
+        </div>
+    </div>
+	
+			
     <script>
         // Initialize global variables
         let customTitle = '';
-        let moviesSeriesBoth = 3, shuffleInterval = 10000, plotMaxLength = 250, token = 'de81a85d55024d7b9fa7b11031de7539', useTrailers = true;
+        let moviesSeriesBoth = 3, shuffleInterval = 10000, plotMaxLength = 250, token = 'cb3da543c9134993a3ec5429e1423a18', useTrailers = true;
         let isChangingSlide = false, player = null, slideChangeTimeout = null, isHomePageActive = false, navigationInterval = null;
         let currentLocation = window.top.location.href;
         let movieList = [], currentMovieIndex = 0, lastMovie = null, currentMovie = null, currentSlideElement = null;
@@ -217,7 +186,11 @@
 
             textContainer.appendChild(loremDiv);
             textContainer.appendChild(createElem('div', 'plot', truncateText(movie.Overview, plotMaxLength)));
+			
             newSlide.appendChild(textContainer);
+			
+			const fadeDiv = createElem('div', 'bottom-fade');
+            newSlide.appendChild(fadeDiv);         // keep it before the overlay
 
             const overlay = createElem('div', 'clickable-overlay', null, null, 'Movie Details');
             overlay.setAttribute('role', 'button');
@@ -518,6 +491,7 @@
                     shutdown();
                     setTimeout(function(){
                         window.location.href = window.location.href;
+						cleanup();
                         /* This page reload is strangely critical to ensure
                         we don't double the script vars upon navigating home
                         using Jellyfin's home button. But it makes videos only
