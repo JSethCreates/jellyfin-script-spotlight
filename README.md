@@ -1,4 +1,4 @@
-# Spotlight
+# Spotlight - Under development..
 
 A Jellyfin homepage enhancement that injects a configurable slideshow of user-permitted content onto the Jellyfin homepage.
 
