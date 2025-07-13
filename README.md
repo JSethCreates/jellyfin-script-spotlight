@@ -2,6 +2,8 @@
 
 **Spotlight** helps you rediscover your media by playing trailers fetched from your libraries' metadata — creating a living, evolving homepage slideshow that highlights your collection.
 
+![2](https://raw.githubusercontent.com/JSethCreates/jellyfin-script-spotlight/refs/heads/main/screenshots/2.PNG)
+
 ---
 
 ### How Spotlight works
@@ -33,6 +35,8 @@
 
 - **Access-aware randomization or custom lists**  
   Media items can be pre-defined in a `list.txt` file. If absent, Spotlight selects random items from the user’s accessible library (respecting profile restrictions, ie. it cannot serve content a user is unable to access).
+
+![1](https://raw.githubusercontent.com/JSethCreates/jellyfin-script-spotlight/refs/heads/main/screenshots/1.PNG)
 
 ---
 
@@ -69,6 +73,8 @@
 - The script goes to great lengths to maximize video size, but if YouTube videos have hard-coded letterbox or pillarbox bars, they cannot be removed.
 
 - The script ensures the YouTube player stops when navigating away from the page. However, due to Jellyfin’s SPA architecture, using the browser "back" button may not fully reload the page, and slides may appear without video. Using Jellyfin’s Home button or refreshing the homepage restores trailer playback.
+
+- Certain youtube videos are not allowed to be played off-site, the fail is noted in console, and those slides will revert to image only
 
 - Several variables can be adjusted around line 100 in `spotlight.html`:
   - `moviesSeriesBoth = 3` — (1 = movies only, 2 = series only, 3 = both)
@@ -118,9 +124,7 @@ c3c48cb8a80c0b5172e8470966a10381 The Shining
 When `list.txt` is present, only these items will be included in the Spotlight slideshow (with trailers and metadata, if available).
 
 
-[![Spotlight Demo Video](https://vumbnail.com/1095523100.jpg)](https://vimeo.com/1095523100)
-
-👉 Demo
+![More Demo] (https://i.imgur.com/sxyrRdX.mp4)
 
 ---
 
