@@ -1,18 +1,18 @@
 # Spotlight - Trailers on the Jellyfin Homepage
 
-**Spotlight** helps you rediscover your media by playing trailers fetched from your libraries' metadata — creating a living, constantly evolving homepage slideshow that highlights your collection.
+**Spotlight** helps you rediscover your media by playing trailers fetched from your libraries' metadata — creating a living, evolving homepage slideshow that highlights your collection.
 
 ---
 
 ### How Spotlight works
 
-- **A dynamic slideshow**  
-  Spotlight searches your library for a random movie or series (configurable in the HTML file). If the item has a background image and a logo, it creates a slide with various metadata.  
+- **Dynamic discoveries**  
+  Spotlight searches your library for a random movie or series (configurable in the HTML file). If the item has a background image and a logo, it creates a slide.  
   When a movie or series has a trailer linked in its metadata, Spotlight fetches and embeds that YouTube trailer directly on the slide.
   It can also read from a static list of media in list.txt (more below)
 
-- **Dynamic aspect ratio detection**  
-  Spotlight uses noembed to determine each trailer’s true aspect ratio. The container is dynamically resized to minimize letterboxing and pillarboxing, showing as much video on the screen as possible. (Hard-coded black bars inside the video itself cannot be removed.)
+- **Trailer aspect ratio detection**  
+  Spotlight uses noembed to determine each trailer’s true aspect ratio. The container is dynamically resized to minimize letterboxing and pillarboxing, showing as much video area in teh frame as possible. (Hard-coded black bars on the yt video itself cannot be clipped.)
 
 - **Cinematic YouTube playback**  
   Trailers are embedded using YouTube’s minimal player configuration:
@@ -32,7 +32,7 @@
   - **Plot summary** at the bottom.
 
 - **Access-aware randomization or custom lists**  
-  Media items can be pre-defined in a `list.txt` file. If absent, Spotlight selects random items from the user’s accessible library (respecting profile restrictions).
+  Media items can be pre-defined in a `list.txt` file. If absent, Spotlight selects random items from the user’s accessible library (respecting profile restrictions, ie. it cannot serve content a user is unable to access).
 
 ---
 
@@ -41,11 +41,9 @@
 1. Create a `UI` folder inside your `\Server\jellyfin-web\` directory.  
 2. Place `spotlight.html` and `spotlight.css` inside that folder.
 
-Next, inject these files into the homepage:
-
-- In your `\Server\jellyfin-web\` directory, find the file named `home-html.~random-characters~.chunk.js` and edit it.
-- Paste the following snippet after  
-  **..movie,series,book">**:
+3. In your `\Server\jellyfin-web\` directory, find the file named `home-html.~random-characters~.chunk.js` and edit it.
+   Paste the following snippet after  
+   **...movie,series,book">**:
 
 ```html
 <style>
@@ -60,17 +58,7 @@ Next, inject these files into the homepage:
 <iframe class="spotlightiframe" src="/web/ui/spotlight.html" tabindex="0"></iframe>
 ```
 
-Finally, reload your Jellyfin homepage (Ctrl + Shift + R) and enjoy!
-
----
-
-## 📸 Screenshots
-
-> Update these paths with your actual screenshot file names once uploaded.
-
-![Spotlight Trailer Example](./screenshots/spotlight-trailer-example.png)
-
-![Metadata Overlay](./screenshots/spotlight-metadata-overlay.png)
+4. Save your modefied chunk.js file, hard-reload your Jellyfin homepage (Ctrl + Shift + R) and enjoy!
 
 ---
 
@@ -94,7 +82,7 @@ Finally, reload your Jellyfin homepage (Ctrl + Shift + R) and enjoy!
 - For a static image bar with more thorough Linux integration instructions, consider [MakD’s Jellyfin-Media-Bar](https://github.com/MakD/Jellyfin-Media-Bar).
 
 
-## Using a `list.txt` file
+## 🗒️ Using a `list.txt` file
 
 If you'd like to manually control which media items Spotlight displays, you can provide a `list.txt` file.
 
@@ -111,9 +99,9 @@ To find a media item's ID:
 2. Copy the URL from your browser — the item ID is the long string after `/details/`.  
    Example:  
    ```
-   http://localhost:8096/web/index.html#!/details/7d45c3eb0d41a9f30b8d06e50e3db321
+   http://localhost:8096/web/index.html#/details?id=66c39f275a415478171ccd911de550c9&serverId=d0bc182015b64c0ebe491b72839266c7
    ```
-   Here, the ID is `7d45c3eb0d41a9f30b8d06e50e3db321`.
+   Here, the ID is `66c39f275a415478171ccd911de550c9`.
 
 ### Example `list.txt`
 
@@ -132,7 +120,7 @@ When `list.txt` is present, only these items will be included in the Spotlight s
 
 [![Spotlight Demo Video](https://vumbnail.com/1095523100.jpg)](https://vimeo.com/1095523100)
 
-👉 Click above to watch a quick demo on Vimeo.
+👉 Demo
 
 ---
 
