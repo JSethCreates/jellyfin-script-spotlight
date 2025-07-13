@@ -1,17 +1,12 @@
 LIST TITLE (ie. Christmas Films) Title of the list (picked but not currently used)
 82649b298a227eebae2ac111c69a3e47 Lable movies here fyi
 9f46848035723de06c4716ffea04d1dc This text is ignored
-c153eff59ee8120ab66cd9a420ea2922 The Irishman
-3b19864b166ab52c44a07363aa835e88 robocop
-8c4a181803702a61cc48072bd5113fb6 charlie and the
-76f9a1b862800321c68d16f8cf86ff7b fightclub
+c153eff59ee8120ab66cd9a420ea2922 Home Alone
+3b19864b166ab52c44a07363aa835e88 Elf
+8c4a181803702a61cc48072bd5113fb6 Miracle on
+76f9a1b862800321c68d16f8cf86ff7b Bad Santa
 4a05a2baa566acb6ea1de8edb75a56d6 If an item is not allowed/available to
 496528765c9937932301a1590752a7f4 A user it will be skipped
-c3c48cb8a80c0b5172e8470966a10381 Cocktail
-5f5c9047099065f639213d29471a5b19 Hitch
-566b51bfa67ce9450d0294052b3d24f5 Fresh
-1e178c7db16ff20bdad078a2b94780b7 SpaceJam
-
-
-
-
+c3c48cb8a80c0b5172e8470966a10381 A christmas story
+5f5c9047099065f639213d29471a5b19 Jingle all the 
+566b51bfa67ce9450d0294052b3d24f5 The Grinch
