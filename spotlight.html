@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Seth's Spotlight - A Jellyfin UI Enhancement v7.0.1</title>
+    <title>Seth's Spotlight - A Jellyfin UI Enhancement v8.0.1</title>
 
     <!-- Fonts and Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -15,9 +15,9 @@
             const parentStyles = getComputedStyle(window.parent.document.documentElement);
             const root = document.documentElement;
             const fallbackColors = {
-                '--md-sys-color-primary': '#b19ee0',
-                '--md-sys-color-primary-container': '#4f378a',
-                '--md-sys-color-on-primary': '#381e72',
+                '--md-sys-color-primary': '#239dfb',
+                '--md-sys-color-primary-container': '#003257',
+                '--md-sys-color-on-primary': '#003257',
                 '--md-sys-color-on-primary-container': '#e9ddff',
                 '--md-sys-color-outline': '#948f99',
                 '--color-text-body': '#e6e1e6'
@@ -80,10 +80,42 @@
     <script>
         // Initialize global variables
         let customTitle = '';
-        let moviesSeriesBoth = 3, shuffleInterval = 10000, plotMaxLength = 250, token = 'cb3da543c9134993a3ec5429e1423a18', useTrailers = true;
+        let moviesSeriesBoth = 3, shuffleInterval = 10000, plotMaxLength = 250, useTrailers = true;
         let isChangingSlide = false, player = null, slideChangeTimeout = null, isHomePageActive = false, navigationInterval = null;
         let currentLocation = window.top.location.href;
         let movieList = [], currentMovieIndex = 0, lastMovie = null, currentMovie = null, currentSlideElement = null;
+		
+		//Get User Auth token
+		const getJellyfinAuth = () => {
+			let token = null;
+			let userId = null;
+			const initEl = window.parent.document.getElementById('jellyfin-initialization-data');
+			if (initEl) {
+				try {
+					const initJson = JSON.parse(initEl.textContent);
+					token = initJson?.AccessToken;
+					userId = initJson?.User?.Id;
+				} catch {}
+			}
+			if (!token) {
+				try {
+					const raw = window.parent.localStorage.getItem('jellyfin_credentials');
+					if (raw) {
+						const creds = JSON.parse(raw);
+						token = creds?.Servers?.[0]?.AccessToken;
+						userId = creds?.Servers?.[0]?.UserId;
+					}
+				} catch {}
+			}
+			if (!token) {
+				const v = window.parent.document.querySelector('video');
+				const s = v?.currentSrc || v?.src || '';
+				token = s.match(/[?&]api_key=([^&]+)/i)?.[1] || null;
+			}
+			return { token, userId };
+		};
+
+		const { token, userId: fallbackUserId } = getJellyfinAuth();
 
         // Create and return a new DOM element with specified attributes
         const createElem = (tag, className, textContent, src, alt) => {
@@ -387,81 +419,77 @@
         };
 
         // Fetch the next movie based on the current list or randomly
-        const fetchNextMovie = () => {
-            if (currentMovie) lastMovie = currentMovie;
+		const fetchNextMovie = () => {
+			if (currentMovie) lastMovie = currentMovie;
 
-            // Fetch the current user's ID
-            const fetchCurrentUserId = () => fetch('/Sessions', {
-                headers: { 'Authorization': `MediaBrowser Client="Jellyfin Web", Device="YourDeviceName", DeviceId="YourDeviceId", Version="YourClientVersion", Token="${token}"` }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
-                return response.json();
-            })
-            .then(sessions => {
-                const currentSession = sessions.find(session => session.UserId);
-                return currentSession ? currentSession.UserId : null;
-            })
-            .catch(error => {
-                console.error("Error fetching current user ID:", error);
-                return null;
-            });
+			// Corrected fetchCurrentUserId function
+			const fetchCurrentUserId = () => fetch(`/Sessions?api_key=${token}`, { credentials: 'same-origin' })
+				.then(response => {
+					if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+					return response.json();
+				})
+				.then(sessions => {
+					const currentSession = sessions.find(session => session.UserId);
+					return currentSession ? currentSession.UserId : null;
+				})
+				.catch(error => {
+					console.error("Error fetching current user ID:", error);
+					return null;
+				});
 
-            fetchCurrentUserId().then(currentUserId => {
-                if (!currentUserId) {
-                    console.warn("Current user ID not found.");
-                    isChangingSlide = false;
-                    return;
-                }
+			fetchCurrentUserId().then(currentUserId => {
+				if (!currentUserId) {
+					console.warn("Current user ID not found.");
+					isChangingSlide = false;
+					return;
+				}
 
-                const headers = { 'Authorization': `MediaBrowser Client="Jellyfin Web", Device="YourDeviceName", DeviceId="YourDeviceId", Version="YourClientVersion", Token="${token}"` };
+				if (movieList.length > 0) {
+					if (currentMovieIndex >= movieList.length) currentMovieIndex = 0; 
+					const movieId = movieList[currentMovieIndex];
+					currentMovieIndex++;
 
-                if (movieList.length > 0) {
-                    if (currentMovieIndex >= movieList.length) currentMovieIndex = 0; 
-                    const movieId = movieList[currentMovieIndex];
-                    currentMovieIndex++;
-
-                    fetch(`/Users/${currentUserId}/Items/${movieId}?Fields=Overview,RemoteTrailers,PremiereDate,RunTimeTicks,ChildCount,Title,Type`, { headers })
-                        .then(response => {
-                            if (!response.ok) throw new Error(`Failed to fetch movie: ${response.statusText}`);
-                            return response.json();
-                        })
-                        .then(movie => {
-                            console.log("Fetched movie from custom list:", movie.Title);
-                            checkBackdropAndLogo(movie);
-                        })
-                        .catch(error => {
-                            console.error("Error fetching movie from custom list:", error);
-                            displayError("Failed to load the next movie. Please try again.");
-                            startSlideChangeTimer();
-                        })
-                        .finally(() => { isChangingSlide = false; });
-                } else {
-                    const itemTypes = moviesSeriesBoth === 1 ? 'Movie' : (moviesSeriesBoth === 2 ? 'Series' : 'Movie,Series');
-                    fetch(`/Users/${currentUserId}/Items?IncludeItemTypes=${itemTypes}&Recursive=true&Limit=1&SortBy=random&Fields=Id,Overview,RemoteTrailers,PremiereDate,RunTimeTicks,ChildCount,Title,Type`, { headers })
-                        .then(response => {
-                            if (!response.ok) throw new Error(`Failed to fetch random movie: ${response.statusText}`);
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.Items[0]) {
-                                console.log("Fetched random movie:", data.Items[0].Title);
-                                checkBackdropAndLogo(data.Items[0]);
-                            } else {
-                                console.warn("No items found in random fetch.");
-                                displayError("No movies found to display.");
-                                startSlideChangeTimer();
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Error fetching random movie:", error);
-                            displayError("Failed to load the next movie. Please try again.");
-                            startSlideChangeTimer();
-                        })
-                        .finally(() => { isChangingSlide = false; });
-                }
-            });
-        };
+					fetch(`/Users/${currentUserId}/Items/${movieId}?Fields=Overview,RemoteTrailers,PremiereDate,RunTimeTicks,ChildCount,Title,Type&api_key=${token}`)
+						.then(response => {
+							if (!response.ok) throw new Error(`Failed to fetch movie: ${response.statusText}`);
+							return response.json();
+						})
+						.then(movie => {
+							console.log("Fetched movie from custom list:", movie.Title);
+							checkBackdropAndLogo(movie);
+						})
+						.catch(error => {
+							console.error("Error fetching movie from custom list:", error);
+							displayError("Failed to load the next movie. Please try again.");
+							startSlideChangeTimer();
+						})
+						.finally(() => { isChangingSlide = false; });
+				} else {
+					const itemTypes = moviesSeriesBoth === 1 ? 'Movie' : (moviesSeriesBoth === 2 ? 'Series' : 'Movie,Series');
+					fetch(`/Users/${currentUserId}/Items?IncludeItemTypes=${itemTypes}&Recursive=true&Limit=1&SortBy=random&Fields=Id,Overview,RemoteTrailers,PremiereDate,RunTimeTicks,ChildCount,Title,Type&api_key=${token}`)
+						.then(response => {
+							if (!response.ok) throw new Error(`Failed to fetch random movie: ${response.statusText}`);
+							return response.json();
+						})
+						.then(data => {
+							if (data.Items[0]) {
+								console.log("Fetched random movie:", data.Items[0].Title);
+								checkBackdropAndLogo(data.Items[0]);
+							} else {
+								console.warn("No items found in random fetch.");
+								displayError("No movies found to display.");
+								startSlideChangeTimer();
+							}
+						})
+						.catch(error => {
+							console.error("Error fetching random movie:", error);
+							displayError("Failed to load the next movie. Please try again.");
+							startSlideChangeTimer();
+						})
+						.finally(() => { isChangingSlide = false; });
+				}
+			});
+		};
 
         // Start a timer to change slides after a specified interval
         const startSlideChangeTimer = () => {
