@@ -1,100 +1,141 @@
-# Spotlight - Under development..
+# Spotlight - Trailers on the Jellyfin Homepage
 
-A Jellyfin homepage enhancement that injects a configurable slideshow of user-permitted content onto the Jellyfin homepage.
-
-This project was initiated by **BobHasNoSoul** ([BobHasNoSoul](https://github.com/BobHasNoSoul)) and I in [**November 2023**](https://forum.jellyfin.org/t-featured-content-bar).
-
-Since then, several implementations have been released. The most streamlined install, and what I would currently reccommend is 
-
-\*\*MakD's \*\*[**Jellyfin-Media-Bar**](https://github.com/MakD/Jellyfin-Media-Bar) 
-
-This Spotlight repo is a bit more fiddily in installation..
+**Spotlight** helps you rediscover your media by playing trailers fetched from your libraries' metadata — creating a living, constantly evolving homepage slideshow that highlights your collection.
 
 ---
 
-## ✨ Features
+### How Spotlight works
 
-- **Movies & Series**: Showcase backdrops, logos, and metadata for both movies and TV series.
-- **Trailer Playback**: Fetch and play trailers from YouTube (optional) with a number of adjustments to our nested iframe.
-- **Configurable Interval**: Set how long static slides remain visible.
-- **Custom Lists**: Supply your own list of item IDs to show via `list.txt`.
-- 
+- **A dynamic slideshow**  
+  Spotlight searches your library for a random movie or series (configurable in the HTML file). If the item has a background image and a logo, it creates a slide with various metadata.  
+  When a movie or series has a trailer linked in its metadata, Spotlight fetches and embeds that YouTube trailer directly on the slide.
+  It can also read from a static list of media in list.txt (more below)
+
+- **Dynamic aspect ratio detection**  
+  Spotlight uses noembed to determine each trailer’s true aspect ratio. The container is dynamically resized to minimize letterboxing and pillarboxing, showing as much video on the screen as possible. (Hard-coded black bars inside the video itself cannot be removed.)
+
+- **Cinematic YouTube playback**  
+  Trailers are embedded using YouTube’s minimal player configuration:
+  - Auto-plays without overlays.
+  - Suppresses most UI elements for a cleaner presentation.
+  - Starts at moderate volume (50% by default).
+
+- **Automatic transitions**  
+  After a trailer finishes, Spotlight automatically loads the next slide. If no trailer is available, a static slide is shown (default duration: 10 seconds, configurable in HTML).
+
+- **Detailed metadata overlays**  
+  Each slide includes:
+  - **Year** of release.
+  - **Duration** (minutes for movies, seasons for series).
+  - **Ratings** (community and critic, where available).
+  - **Logo** (if available) and **backdrop** image.
+  - **Plot summary** at the bottom.
+
+- **Access-aware randomization or custom lists**  
+  Media items can be pre-defined in a `list.txt` file. If absent, Spotlight selects random items from the user’s accessible library (respecting profile restrictions).
+
 ---
 
-## 🚀 Installation
+## 🛠️ Windows Installation
 
-1. **Download the Assets**
+1. Create a `UI` folder inside your `\Server\jellyfin-web\` directory.  
+2. Place `spotlight.html` and `spotlight.css` inside that folder.
 
-   - [`spotlight.html`](./spotlight.html)
-   - [`spotlight.css`](./spotlight.css)
+Next, inject these files into the homepage:
 
-2. \*\*Configure \*\*\`\`\
-   At the top of the file, edit the `config` block:
+- In your `\Server\jellyfin-web\` directory, find the file named `home-html.~random-characters~.chunk.js` and edit it.
+- Paste the following snippet after  
+  **..movie,series,book">**:
 
-   ```js
-   const config = {
-     mediaTypes: 'movie,series',    // 'movie', 'series', or 'movie,series'
-     useTrailers: true,             // true to enable trailers, false for static slides
-     shuffleInterval: 30,           // seconds per non-trailer slide
-     token: 'YOUR_JELLYFIN_API_KEY' // your Jellyfin API key
-   };
+```html
+<style>
+  .spotlightiframe {
+    width: 99.5vw;
+    height: 63vh;
+    display: block;
+    border: 0px solid #000;
+    margin: -65px auto -50px auto;
+  }
+</style>
+<iframe class="spotlightiframe" src="/web/ui/spotlight.html" tabindex="0"></iframe>
+```
+
+Finally, reload your Jellyfin homepage (Ctrl + Shift + R) and enjoy!
+
+---
+
+## 📸 Screenshots
+
+> Update these paths with your actual screenshot file names once uploaded.
+
+![Spotlight Trailer Example](./screenshots/spotlight-trailer-example.png)
+
+![Metadata Overlay](./screenshots/spotlight-metadata-overlay.png)
+
+---
+
+## Notes
+
+- **Trailers are not loaded if the device width is below 700px.**
+
+- The script goes to great lengths to maximize video size, but if YouTube videos have hard-coded letterbox or pillarbox bars, they cannot be removed.
+
+- The script ensures the YouTube player stops when navigating away from the page. However, due to Jellyfin’s SPA architecture, using the browser "back" button may not fully reload the page, and slides may appear without video. Using Jellyfin’s Home button or refreshing the homepage restores trailer playback.
+
+- Several variables can be adjusted around line 100 in `spotlight.html`:
+  - `moviesSeriesBoth = 3` — (1 = movies only, 2 = series only, 3 = both)
+  - `shuffleInterval = 10000` — time (ms) between static slide changes without video
+  - `useTrailers = true` — set to `false` to disable trailers
+
+- You can change the hardcoded fallbackColors to adjust the colors of the buttons, or the frame will inherit colors from your CSS if it is MD3 compatible eg. [GNAT](https://github.com/JSethCreates/jellyfin-theme-sethstyle)
+
+- My ultimate goal is to support local trailers stored on your server, eliminating the need for YouTube. While planned, this feature is **not included in this release**.
+
+- For a static image bar with more thorough Linux integration instructions, consider [MakD’s Jellyfin-Media-Bar](https://github.com/MakD/Jellyfin-Media-Bar).
+
+
+## Using a `list.txt` file
+
+If you'd like to manually control which media items Spotlight displays, you can provide a `list.txt` file.
+
+- Create a text file named `list.txt` and place it in the same `UI` folder as `spotlight.html` and `spotlight.css`.
+- Each line of the file should contain a single Jellyfin item ID.  
+- Spotlight will exclusively select items listed in this file, in random order.  
+- If `list.txt` is absent or empty, Spotlight will automatically fall back to picking random items from the user's accessible library.
+
+### How to find item IDs
+
+To find a media item's ID:
+
+1. Navigate to the item in your Jellyfin web interface.
+2. Copy the URL from your browser — the item ID is the long string after `/details/`.  
+   Example:  
    ```
-
-3. **Deploy to Jellyfin Web UI**
-
-   ```bash
-   cd /path/to/jellyfin-web/ui/
-   mkdir -p spotlight
-   cp /path/to/spotlight.html /path/to/spotlight.css spotlight/
+   http://localhost:8096/web/index.html#!/details/7d45c3eb0d41a9f30b8d06e50e3db321
    ```
+   Here, the ID is `7d45c3eb0d41a9f30b8d06e50e3db321`.
 
-4. \*\*Inject into \*\*\`\`
-
-   - Locate the chunk file in `/path/to/jellyfin-web/`.
-   - Find the line ending with `data-backdroptype="movie,series,book">`.
-   - Immediately after, insert:
-     ```html
-     <style>
-       .featurediframe {
-         width: 99.5vw;
-         height: 63vh;
-         display: block;
-         border: 0;
-         margin: -65px auto -50px auto;
-       }
-     </style>
-     <iframe
-       class="featurediframe"
-       src="/web/ui/spotlight/spotlight.html"
-       tabindex="0">
-     </iframe>
-     ```
-
-5. **Clear Cache & Refresh**\
-   Press `Ctrl + Shift + R` (or `Cmd + Shift + R` on macOS) until the slideshow appears on your Jellyfin homepage.
-
----
-
-## 📋 Custom Lists (`list.txt`)
-
-Place a `list.txt` inside the `spotlight` folder to override random selection:
+### Example `list.txt`
 
 ```
-Happy Fathers Day!               This first line is picked up as the list title (but not currently used)
-4a05a2baa566acb6ea1de8edb75a56d6 This right-side text is ignored by the script so you can label these items here
+Happy Fathers Day!               This first line is picked as the list title (but not currently used)
+4a05a2baa566acb6ea1de8edb75a56d6 This right-side text is ignored by the script so you can label items
 8c4a181803702a61cc48072bd5113fb6 Copy these item IDs out of the Media item page address
 496528765c9937932301a1590752a7f4 If a user doesnt have access to an item it will skip
 c3c48cb8a80c0b5172e8470966a10381 The Shining
 5f5c9047099065f639213d29471a5b19 There Will be Blood
-1e178c7db16ff20bdad078a2b94780b7 Home Alone
+1e178c7db16ff20bdad078a2b94780b7 World's Greatest Dad
 ```
 
-- **Line 1**: List title (for reference; not displayed).
-- **Lines 2+**: Jellyfin item IDs (trailing comments/text ignored).
+When `list.txt` is present, only these items will be included in the Spotlight slideshow (with trailers and metadata, if available).
+
+
+[![Spotlight Demo Video](https://vumbnail.com/1095523100.jpg)](https://vimeo.com/1095523100)
+
+👉 Click above to watch a quick demo on Vimeo.
 
 ---
 
 ## 📄 License
 
 Distributed under the [MIT License](LICENSE).
-
