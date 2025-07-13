@@ -2,7 +2,7 @@
 
 **Spotlight** helps you rediscover your media by playing trailers fetched from your libraries' metadata — creating a living, evolving homepage slideshow that highlights your collection.
 
-![2](https://raw.githubusercontent.com/JSethCreates/jellyfin-script-spotlight/refs/heads/main/screenshots/2.PNG)
+![2](https://raw.githubusercontent.com/JSethCreates/jellyfin-script-spotlight/refs/heads/main/screenshots/spotlightdemo.gif)
 
 ---
 
@@ -88,6 +88,9 @@
 - For a static image bar with more thorough Linux integration instructions, consider [MakD’s Jellyfin-Media-Bar](https://github.com/MakD/Jellyfin-Media-Bar).
 
 ---
+
+![2](https://raw.githubusercontent.com/JSethCreates/jellyfin-script-spotlight/refs/heads/main/screenshots/2.PNG)
+
 
 ## 🗒️ Using a `list.txt` file
 
