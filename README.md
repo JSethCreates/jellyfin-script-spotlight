@@ -55,7 +55,7 @@
     margin: -65px auto -50px auto;
   }
 </style>
-<iframe class="spotlightiframe" src="/web/ui/spotlight.html" tabindex="0"></iframe>
+<iframe class="spotlightiframe" src="/web/UI/spotlight.html" tabindex="0"></iframe>
 ```
 
 4. Save your modefied chunk.js file, hard-reload your Jellyfin homepage (Ctrl + Shift + R) and enjoy!
