@@ -135,4 +135,4 @@ Further Demo
 
 ## 📄 License
 
-Distributed under the [MIT License](LICENSE).
+Distributed under the [MIT LICENSE](https://raw.githubusercontent.com/JSethCreates/jellyfin-script-spotlight/refs/heads/main/LICENSE)
