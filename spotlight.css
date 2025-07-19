@@ -301,21 +301,71 @@ body {
   border-radius: 0 9999px 9999px 0;
 }
 
-#navButtons button:hover {
-  background-color: var(--md-sys-color-primary) !important;
-  color: var(--md-sys-color-on-primary) !important;
-  border-color: var(--md-sys-color-outline) !important;
+/* ------------------------------------
+   Navigation Buttons (MD3 Style)
+------------------------------------- */
+#navButtons button {
+  position: relative; /* For state-layer overlay */
+  border: 1px solid var(--md-sys-color-outline) !important;
+  background-color: var(--md-sys-color-primary-container) !important;
+  color: var(--md-sys-color-on-primary-container) !important;
+  padding: 0.15em 0.9em;
+  margin: 0;
+  font-family: "Titillium Web", sans-serif;
+  font-size: 1.4em;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Sheen layer for hover */
+#navButtons button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-color: var(--md-sys-color-on-primary-container);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+#navButtons button:hover::after {
+  opacity: 0.08;
+}
+
+#navButtons button + button {
+  border-left: none;
+}
+
+/* ------------------------------------
+   Corner Rounding
+------------------------------------- */
+#leftButton {
+  border-radius: 9999px 0 0 9999px;
+}
+#mediaButton,
+#playPauseButton {
+  border-radius: 0;
+}
+#rightButton {
+  border-radius: 0 9999px 9999px 0;
+}
+
+/* ------------------------------------
+   Icon Styling
+------------------------------------- */
 #navButtons button .material-icons {
   color: var(--md-sys-color-on-primary-container);
   transition: color 0.2s ease;
 }
 
 #navButtons button:hover .material-icons {
-  color: var(--md-sys-color-on-primary);
+  color: var(--md-sys-color-on-primary-container);
 }
 
+/* ------------------------------------
+   Disabled State
+------------------------------------- */
 #navButtons button:disabled {
   opacity: 0.5;
   cursor: default;
