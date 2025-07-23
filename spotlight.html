@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Seth's Spotlight - A Jellyfin UI Enhancement v8.0.1</title>
+    <title>Seth's Spotlight - A Jellyfin UI Enhancement v8.0.2</title>
 
     <!-- Fonts and Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -186,10 +186,10 @@
                 fetch(`/Items/${movie.Id}${url}`, { method: 'HEAD' }).then(response => response.ok)
             )).then(([backdropExists, logoExists]) => {
                 if (backdropExists && logoExists) {
-                    console.log(`Backdrop and logo exist for movie: ${movie.Title}`);
+                    console.log(`Backdrop and logo exist for movie: ${movie.Name}`);
                     createSlideElement(movie, true);
                 } else {
-                    console.log(`Backdrop or logo missing for movie: ${movie.Title}. Fetching next movie.`);
+                    console.log(`Backdrop or logo missing for movie: ${movie.Name}. Fetching next movie.`);
                     fetchNextMovie();
                 }
             }).catch(error => {
@@ -347,7 +347,7 @@
                         startSlideChangeTimer();
                     });
                 } else {
-                    console.warn("Trailer video ID not found for movie:", movie.Title);
+                    console.warn("Trailer video ID not found for movie:", movie.Name);
                     startSlideChangeTimer();
                 }
             } else {
@@ -455,7 +455,7 @@
 							return response.json();
 						})
 						.then(movie => {
-							console.log("Fetched movie from custom list:", movie.Title);
+							console.log("Fetched movie from custom list:", movie.Name);
 							checkBackdropAndLogo(movie);
 						})
 						.catch(error => {
@@ -473,7 +473,7 @@
 						})
 						.then(data => {
 							if (data.Items[0]) {
-								console.log("Fetched random movie:", data.Items[0].Title);
+								console.log("Fetched random movie:", data.Items[0].Name);
 								checkBackdropAndLogo(data.Items[0]);
 							} else {
 								console.warn("No items found in random fetch.");
@@ -549,7 +549,7 @@
 				rightButton.onclick = fetchNextMovie;
 				leftButton.onclick = () => {
 					if (lastMovie) {
-						console.log("Navigating to previous movie:", lastMovie.Title);
+						console.log("Navigating to previous movie:", lastMovie.Name);
 						createSlideElement(lastMovie, true);
 					}
 				};
