@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Seth's Spotlight - A Jellyfin UI Enhancement v8.0.2</title>
+    <title>Seth's Spotlight - A Jellyfin UI Enhancement v9.3.4</title>
 
     <!-- Fonts and Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -12,6 +12,13 @@
     <!-- Theme Variable Injection from Parent with Fallbacks -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+			window.addEventListener("message", (e) => {
+				if (e.data === "local-trailer-ended") {
+					console.log("📼 Local trailer ended, advancing slide.");
+					cleanup();
+					fetchNextMovie();
+				}
+			});
             const parentStyles = getComputedStyle(window.parent.document.documentElement);
             const root = document.documentElement;
             const fallbackColors = {
@@ -84,6 +91,7 @@
         let isChangingSlide = false, player = null, slideChangeTimeout = null, isHomePageActive = false, navigationInterval = null;
         let currentLocation = window.top.location.href;
         let movieList = [], currentMovieIndex = 0, lastMovie = null, currentMovie = null, currentSlideElement = null;
+		let localTrailerIframe = null;
 		
 		//Get User Auth token
 		const getJellyfinAuth = () => {
@@ -141,19 +149,24 @@
         };
 
         // Clean up existing player and timeout
-        const cleanup = () => {
-            if (player && typeof player.stopVideo === 'function') {
-                player.stopVideo();
-                player.destroy(); 
-                player = null;
-                console.log("YouTube player cleaned up.");
-            }
-            if (slideChangeTimeout) {
-                clearTimeout(slideChangeTimeout);
-                slideChangeTimeout = null;
-                console.log("Slide change timeout cleared.");
-            }
-        };
+		const cleanup = () => {
+			if (player && typeof player.stopVideo === 'function') {
+				player.stopVideo();
+				player.destroy();
+				player = null;
+				console.log("YouTube player cleaned up.");
+			}
+			if (localTrailerIframe) {
+				localTrailerIframe.remove();
+				localTrailerIframe = null;
+				console.log("Local trailer iframe removed.");
+			}
+			if (slideChangeTimeout) {
+				clearTimeout(slideChangeTimeout);
+				slideChangeTimeout = null;
+				console.log("Slide change timeout cleared.");
+			}
+		};
 
         // Shut down the slideshow by cleaning up and resetting variables
         const shutdown = () => {
@@ -197,12 +210,36 @@
                 fetchNextMovie();
             });
         };
+		
+		async function checkLocalTrailer(itemId) {
+			const uid = fallbackUserId; // already from getJellyfinAuth()
+			if (!token || !uid) return null;
+
+			try {
+				const res = await fetch(`/Users/${uid}/Items/${itemId}/LocalTrailers?api_key=${token}`);
+				if (!res.ok) return null;
+				const arr = await res.json();
+				if (!arr?.length) return null;
+
+				const t = arr[0];
+				const mediaSourceId = t.MediaSources?.[0]?.Id;
+				const streamUrl = mediaSourceId
+					? `/Videos/${t.Id}/stream.mp4?Static=true&mediaSourceId=${mediaSourceId}&api_key=${token}`
+					: null;
+
+				return { trailer: t, streamUrl };
+			} catch (e) {
+				console.warn("Local trailer check failed:", e);
+				return null;
+			}
+		}
 
         // Create and display a new slide element for the given movie
         const createSlideElement = async (movie, hasVideo = false) => {
             cleanup();
             const container = document.getElementById('slides-container');
             const newSlide = createElem('div', 'slide');
+			newSlide.appendChild(createElem('div', 'slide-mat'));
             newSlide.appendChild(createElem('img', 'backdrop', null, `/Items/${movie.Id}/Images/Backdrop/0`, 'backdrop'));
             newSlide.appendChild(createElem('img', 'logo', null, `/Items/${movie.Id}/Images/Logo`, 'logo'));
 
@@ -235,7 +272,154 @@
             });
             newSlide.appendChild(overlay);
 
-            if (useTrailers && movie.RemoteTrailers?.length > 0) {
+			let localTrailerInfo = null;
+			let hasLocalTrailer = false;
+
+			if (useTrailers) {
+				localTrailerInfo = await checkLocalTrailer(movie.Id);
+				hasLocalTrailer = !!localTrailerInfo;
+				console.log(
+					hasLocalTrailer ? "✅ Local trailer exists:" : "❌ No local trailer. Proceeding to Remote/YouTube…",
+					localTrailerInfo
+				);
+			}
+			// Local Trailer playback
+			if (useTrailers && hasLocalTrailer) {
+				const { trailer, streamUrl } = localTrailerInfo;
+				const mediaSourceId = trailer.MediaSources?.[0]?.Id;
+				const finalUrl = mediaSourceId
+					? `/Videos/${trailer.Id}/stream.mp4?Static=true&mediaSourceId=${mediaSourceId}&api_key=${token}`
+					: streamUrl; // fallback from the checker
+
+				const videoContainer = createElem('div', 'video-container', null, null, 'Local Trailer');
+				const iframe = document.createElement('iframe');
+				iframe.className = 'local-trailer-frame';
+				iframe.allow = 'autoplay';
+				iframe.setAttribute('aria-label', 'Local Trailer');
+
+				// remove border & scrollbar
+				Object.assign(iframe.style, {
+				  width: '100%',
+				  height: '100%',
+				  border: '0',
+				  overflow: 'hidden',
+				  position: 'absolute',
+				  inset: '0'
+				});
+				iframe.setAttribute('scrolling', 'no');
+				iframe.setAttribute('frameborder', '0');
+				
+				
+				
+				
+				iframe.srcdoc = [
+				  '<!DOCTYPE html><html><head><meta charset="utf-8">',
+				  '<style>',
+				  'html,body{margin:0;height:100%;background:#000;}',
+				  'video{width:100%;height:100%;object-fit:contain;}',
+				  /* kill native controls just in case */
+				  'video::-webkit-media-controls{display:none !important;}',
+				  'video::-moz-media-controls{display:none !important;}',
+				  '</style></head><body>',
+				  // ↓ removed muted & controls
+				  '<video id="lt" autoplay playsinline preload="auto" src="', finalUrl ,'"></video>',
+				  '<script>',
+				  'const v=document.getElementById("lt");',
+				  'const unmute=()=>{ try{ v.muted=false; v.volume=1; }catch(e){} };',
+				  'v.addEventListener("loadedmetadata",()=>{',
+				  '  unmute();',
+			      '  try {',
+				  '    parent.postMessage({ type: "local-trailer-metadata", width: v.videoWidth, height: v.videoHeight }, "*");',
+				  '  } catch(e){}',
+				  '});',
+				  'v.addEventListener("play",unmute);',
+				  'v.addEventListener("ended",()=>{ parent.postMessage("local-trailer-ended", "*"); });',
+				  'window.addEventListener("message",e=>{',
+				  ' if(e.data==="pause")v.pause();',
+				  ' if(e.data==="play")v.play();',
+				  ' if(e.data==="toggle"){ v.paused?v.play():v.pause(); }',
+				  '});',
+				  '<\/script>',
+				  '</body></html>'
+				].join('');
+
+				videoContainer.appendChild(iframe);
+
+				// ⬇️ Add this block to resize the iframe based on actual video dimensions
+				window.addEventListener('message', function onMeta(e) {
+					if (e.data?.type === 'local-trailer-metadata') {
+						window.removeEventListener('message', onMeta); // Only handle once
+						const { width, height } = e.data;
+						if (width && height) {
+							const aspectRatio = width / height;
+							const videoContainer = iframe.parentElement;
+							const h = videoContainer.clientHeight || 360;
+							const w = h * aspectRatio;
+
+							videoContainer.style.width = `${w}px`;
+
+							const backdropElement = newSlide.querySelector('.backdrop');
+							if (backdropElement) {
+								backdropElement.style.width = `calc(100% - ${w * 0.8}px)`;
+								backdropElement.style.webkitMaskImage =
+									backdropElement.style.maskImage =
+									'linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 65%, rgba(255,255,255,0) 100%)';
+							}
+
+							['clickable-overlay'].forEach(cls => {
+								const el = newSlide.querySelector(`.${cls}`);
+								if (el) el.style.width = `calc(100% - ${w * 0.8}px)`;
+							});
+						}
+					}
+				});
+				newSlide.appendChild(videoContainer);
+				localTrailerIframe = iframe; // keep ref for cleanup/pause
+
+				// sizing like the YT branch
+				const backdropElement = newSlide.querySelector('.backdrop');
+				if (backdropElement) {
+					const aspectRatio = 16 / 9;
+					const h = videoContainer.clientHeight || 360;
+					const w = h * aspectRatio;
+					videoContainer.style.width = `${w}px`;
+					videoContainer.style.webkitMaskImage = videoContainer.style.maskImage =
+					'linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 25%)';
+					backdropElement.style.width = `calc(100% - ${w * 0.8}px)`;
+					backdropElement.style.webkitMaskImage =
+						backdropElement.style.maskImage =
+						'linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 65%, rgba(255,255,255,0) 100%)';
+					['clickable-overlay'].forEach(cls => {
+						const el = newSlide.querySelector(`.${cls}`);
+						if (el) el.style.width = `calc(100% - ${w * 0.8}px)`;
+					});
+				}
+
+				// show play/pause btn
+				const playPauseBtn = document.getElementById('playPauseButton');
+				if (playPauseBtn) {
+					playPauseBtn.style.display = 'inline-block';
+					const icon = playPauseBtn.querySelector('span.material-icons');
+					if (icon) icon.textContent = 'pause';
+				}
+
+				container.appendChild(newSlide);
+				void newSlide.offsetWidth;
+				newSlide.classList.add('visible');
+
+				const oldSlideElement = currentSlideElement;
+				if (oldSlideElement) {
+					oldSlideElement.classList.remove('visible');
+					setTimeout(() => oldSlideElement?.parentNode?.removeChild(oldSlideElement), 1300);
+				}
+				currentSlideElement = newSlide;
+				lastMovie = currentMovie;
+				currentMovie = movie;
+				updateSlideButtons();
+				return; // prevent falling through to YouTube
+			}
+
+            if (useTrailers && !hasLocalTrailer && movie.RemoteTrailers?.length > 0) {
                 const trailerUrl = movie.RemoteTrailers[0].Url;
                 let videoId = null;
                 try {
@@ -538,11 +722,28 @@
 			const playPauseButton = document.getElementById('playPauseButton');
 			if (playPauseButton) {
 				playPauseButton.onclick = () => {
-					if (window.controlYouTubePlayer && typeof window.controlYouTubePlayer.toggle === 'function') {
-						window.controlYouTubePlayer.toggle();
+				const icon = playPauseButton.querySelector('span.material-icons');
+
+				if (player && typeof player.getPlayerState === 'function') {
+					const state = player.getPlayerState();
+					if (state === YT.PlayerState.PLAYING) {
+						player.pauseVideo();
+						console.log("YouTube player paused.");
+						if (icon) icon.textContent = 'play_arrow';
+					} else {
+						player.playVideo();
+						console.log("YouTube player playing.");
+						if (icon) icon.textContent = 'pause';
 					}
-				};
-				console.log("Play/Pause button listener attached.");
+				} else if (localTrailerIframe?.contentWindow) {
+					localTrailerIframe.contentWindow.postMessage('toggle', '*');
+
+					// We'll assume the current state and flip it.
+					if (icon) {
+						icon.textContent = icon.textContent === 'pause' ? 'play_arrow' : 'pause';
+					}
+				}
+			};
 			}
 
 			if (rightButton && leftButton) {
