@@ -1,6 +1,6 @@
 # Spotlight - Trailers on the Jellyfin Homepage
 
-**Spotlight** helps you rediscover your media by playing trailers fetched from your libraries' metadata — creating a living, evolving homepage slideshow that highlights your collection.
+**Spotlight** helps you rediscover your media by playing local or remote trailers fetched from your libraries' metadata — creating a living, evolving homepage slideshow that highlights your collection.
 
 ![2](https://raw.githubusercontent.com/JSethCreates/jellyfin-script-spotlight/refs/heads/main/screenshots/spotlightdemo.gif)
 
@@ -83,9 +83,7 @@
 
 - You can change the hardcoded fallbackColors to adjust the colors of the buttons, or the frame will inherit colors from your CSS if it is MD3 compatible eg. [GNAT](https://github.com/JSethCreates/jellyfin-theme-sethstyle)
 
-- My ultimate goal is to support local trailers stored on your server, eliminating the need for YouTube. While planned, this feature is **not included in this release**.
-
-- For a static image bar with more thorough Linux integration instructions, consider [MakD’s Jellyfin-Media-Bar](https://github.com/MakD/Jellyfin-Media-Bar).
+- Local trailers stored on your server are supported (moviename (year)-trailer.mp4 is picked up bu jellyfin), eliminating the need for YouTube.
 
 ---
 
