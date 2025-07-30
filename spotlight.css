@@ -158,8 +158,8 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.75))
-          drop-shadow(0 5px 8px rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.85))
+          drop-shadow(0 6px 10px rgba(0, 0, 0, 0.7));
 }
 
 /* Plot text */
@@ -177,8 +177,8 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: normal;
-  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.8))
-          drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6));
+  filter: drop-shadow(0 5px 7px rgba(0, 0, 0, 0.9))
+          drop-shadow(0 7px 12px rgba(0, 0, 0, 0.75));
 }
 
 .text-container .lorem-ipsum,
