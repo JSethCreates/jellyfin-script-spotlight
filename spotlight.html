@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Seth's Spotlight - A Jellyfin UI Enhancement v9.3.4</title>
+    <title>Seth's Spotlight - A Jellyfin UI Enhancement v10.0.1</title>
 
     <!-- Fonts and Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -22,13 +22,13 @@
             const parentStyles = getComputedStyle(window.parent.document.documentElement);
             const root = document.documentElement;
             const fallbackColors = {
-                '--md-sys-color-primary': '#239dfb',
-                '--md-sys-color-primary-container': '#003257',
-                '--md-sys-color-on-primary': '#003257',
-                '--md-sys-color-on-primary-container': '#e9ddff',
-                '--md-sys-color-outline': '#948f99',
-                '--color-text-body': '#e6e1e6'
-            };
+				'--md-sys-color-primary': '#239dfb',
+				'--md-sys-color-primary-container': '#0032570D', // 95% transp
+				'--md-sys-color-on-primary': '#003257',
+				'--md-sys-color-on-primary-container': '#e9ddff',
+				'--md-sys-color-outline': '#67656a', // darker gray
+				'--color-text-body': '#e6e1e6'
+			};
 
             Object.entries(fallbackColors).forEach(([name, fallback]) => {
                 const val = parentStyles.getPropertyValue(name).trim() || fallback;
@@ -87,7 +87,7 @@
     <script>
         // Initialize global variables
         let customTitle = '';
-        let moviesSeriesBoth = 3, shuffleInterval = 10000, plotMaxLength = 250, useTrailers = true;
+        let moviesSeriesBoth = 3, shuffleInterval = 10000, plotMaxLength = 450, useTrailers = true;
         let isChangingSlide = false, player = null, slideChangeTimeout = null, isHomePageActive = false, navigationInterval = null;
         let currentLocation = window.top.location.href;
         let movieList = [], currentMovieIndex = 0, lastMovie = null, currentMovie = null, currentSlideElement = null;
@@ -240,16 +240,94 @@
             const container = document.getElementById('slides-container');
             const newSlide = createElem('div', 'slide');
 			newSlide.appendChild(createElem('div', 'slide-mat'));
-            newSlide.appendChild(createElem('img', 'backdrop', null, `/Items/${movie.Id}/Images/Backdrop/0`, 'backdrop'));
-            newSlide.appendChild(createElem('img', 'logo', null, `/Items/${movie.Id}/Images/Logo`, 'logo'));
+            
+			const visualWrapper = createElem('div', 'visual-wrapper');
+			visualWrapper.appendChild(createElem('img', 'backdrop', null, `/Items/${movie.Id}/Images/Backdrop/0`, 'backdrop'));
+
+			const hoverZone = createElem('div', 'logo-hover-zone');
+			hoverZone.setAttribute('role', 'button');
+			hoverZone.setAttribute('aria-label', 'View Movie Details');
+			hoverZone.onclick = () => window.top.Emby.Page.showItem(movie.Id);
+			hoverZone.addEventListener('keypress', (e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					window.top.Emby.Page.showItem(movie.Id);
+				}
+			});
+			
+			// Hover effects via JS for logo
+			hoverZone.addEventListener("mouseenter", () => {
+			  const logo = textContainer.querySelector('.logo');
+			  if (logo) {
+				logo.style.transform = "translateX(-50%) scale(1.2)";
+				logo.style.opacity = "0.1";
+			  }
+			});
+			hoverZone.addEventListener("mouseleave", () => {
+			  const logo = textContainer.querySelector('.logo');
+			  if (logo) {
+				logo.style.transform = "translateX(-50%)";
+				logo.style.opacity = "1";
+			  }
+			});
+						
+			visualWrapper.appendChild(hoverZone);
+
+			newSlide.appendChild(visualWrapper);
 
             const textContainer = createElem('div', 'text-container');
+			
+			textContainer.appendChild(createElem('img', 'logo', null, `/Items/${movie.Id}/Images/Logo`, 'logo'));
+			
             const premiereYear = movie.PremiereDate ? new Date(movie.PremiereDate).getFullYear() : 'Unknown';
             const additionalInfo = movie.Type === 'Series' ? (movie.ChildCount ? `${movie.ChildCount} Season${movie.ChildCount > 1 ? 's' : ''}` : 'Unknown Seasons') : (movie.RunTimeTicks ? `${Math.round(movie.RunTimeTicks / 600000000)} min` : 'Unknown Runtime');
 
-            let loremText = `${premiereYear}   |   ${additionalInfo}`;
-            if (movie.CommunityRating) loremText += `   |   <i class=\"star-icon fas fa-star\" aria-hidden="true"></i> ${movie.CommunityRating.toFixed(1)}`;
-            if (movie.CriticRating) loremText += `<img src="https://i.imgur.com/iMfwDk7.png" alt="Rotten Tomatoes" style="width: 1.2em; height: 1.2em; padding-left: 0.5em; vertical-align: sub;"> ${movie.CriticRating}%`;
+			const communityRating = movie.CommunityRating ? movie.CommunityRating.toFixed(1) : '–';
+			const genres = Array.isArray(movie.Genres) && movie.Genres.length
+			  ? movie.Genres.slice(0, 2).join(', ')
+			  : 'Genre';
+			const officialRating = movie.OfficialRating || 'NR';
+			const year = movie.PremiereDate ? new Date(movie.PremiereDate).getFullYear() : '–';
+			const durationOrSeasons = movie.Type === 'Series'
+			  ? (movie.ChildCount ? `${movie.ChildCount} Season${movie.ChildCount > 1 ? 's' : ''}` : '–')
+			  : (movie.RunTimeTicks ? `${Math.round(movie.RunTimeTicks / 600000000)} min` : '–');
+
+			const loremText = `
+			  <span style="display:inline-flex; align-items:center; gap:12px; vertical-align:middle; flex-wrap:wrap;">
+
+				<span style="display:inline-flex; align-items:center; gap:4px;">
+				  <img src="https://upload.wikimedia.org/wikipedia/commons/6/69/IMDB_Logo_2016.svg" alt="IMDb" style="height:1.05em; margin-right:10px;">
+				  <span>${communityRating}</span>
+				  <span class="material-icons star-icon" style="font-size:1em; transform: translateY(-2px);">star</span>
+				</span>
+
+				<span class="bullet-separator">•</span>
+
+				<span style="display:inline-flex; align-items:center; gap:4px;">
+				  <span class="material-icons" style="font-size:1em;">theater_comedy</span>
+				  <span>${genres}</span>
+				</span>
+
+				<span class="bullet-separator second-bullet">•</span>
+
+				<span style="background:#fff; color:#3d3c3c; padding:4px 12px 3px 12px; border-radius:8px; font-weight:550; font-size:0.78em; font-family:'Titillium Web', sans-serif; line-height:1em;">
+				  ${officialRating}
+				</span>
+
+				<span class="bullet-separator">•</span>
+
+				<span style="display:inline-flex; align-items:center; gap:4px;">
+				  <span class="material-icons" style="font-size:1em;">
+					${movie.Type === 'Series' ? 'calendar_today' : 'schedule'}
+				  </span>
+				  <span>${durationOrSeasons}</span>
+				</span>
+
+				<span class="bullet-separator">•</span>
+				<span>${year}</span>
+
+			  </span>
+			`;
+			
             const loremDiv = createElem('div', 'lorem-ipsum');
             loremDiv.innerHTML = loremText;
 
@@ -259,18 +337,6 @@
             newSlide.appendChild(textContainer);
 			
 			const fadeDiv = createElem('div', 'bottom-fade');
-            newSlide.appendChild(fadeDiv);         // keep it before the overlay
-
-            const overlay = createElem('div', 'clickable-overlay', null, null, 'Movie Details');
-            overlay.setAttribute('role', 'button');
-            overlay.setAttribute('aria-label', 'View Movie Details');
-            overlay.onclick = () => window.top.Emby.Page.showItem(movie.Id);
-            overlay.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    window.top.Emby.Page.showItem(movie.Id);
-                }
-            });
-            newSlide.appendChild(overlay);
 
 			let localTrailerInfo = null;
 			let hasLocalTrailer = false;
@@ -633,7 +699,7 @@
 					const movieId = movieList[currentMovieIndex];
 					currentMovieIndex++;
 
-					fetch(`/Users/${currentUserId}/Items/${movieId}?Fields=Overview,RemoteTrailers,PremiereDate,RunTimeTicks,ChildCount,Title,Type&api_key=${token}`)
+					fetch(`/Users/${currentUserId}/Items/${movieId}?Fields=Overview,RemoteTrailers,PremiereDate,RunTimeTicks,ChildCount,Title,Type,Genres,OfficialRating,CommunityRating&api_key=${token}`)
 						.then(response => {
 							if (!response.ok) throw new Error(`Failed to fetch movie: ${response.statusText}`);
 							return response.json();
@@ -650,7 +716,7 @@
 						.finally(() => { isChangingSlide = false; });
 				} else {
 					const itemTypes = moviesSeriesBoth === 1 ? 'Movie' : (moviesSeriesBoth === 2 ? 'Series' : 'Movie,Series');
-					fetch(`/Users/${currentUserId}/Items?IncludeItemTypes=${itemTypes}&Recursive=true&Limit=1&SortBy=random&Fields=Id,Overview,RemoteTrailers,PremiereDate,RunTimeTicks,ChildCount,Title,Type&api_key=${token}`)
+					fetch(`/Users/${currentUserId}/Items?IncludeItemTypes=${itemTypes}&Recursive=true&Limit=1&SortBy=random&Fields=Id,Overview,RemoteTrailers,PremiereDate,RunTimeTicks,ChildCount,Title,Type,Genres,OfficialRating,CommunityRating&api_key=${token}`)
 						.then(response => {
 							if (!response.ok) throw new Error(`Failed to fetch random movie: ${response.statusText}`);
 							return response.json();

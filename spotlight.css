@@ -1,3 +1,10 @@
+/* ================================================
+   Seth's Spotlight - A Jellyfin UI Enhancement
+   Version: 10.0.1
+   Author: J.S.C.
+   File: spotlight.css
+   ================================================ */
+
 /* Base Reset */
 body {
   margin: 0;
@@ -40,8 +47,17 @@ body {
   opacity: 0;
   filter: blur(5px);
   transition: opacity 1.3s ease, filter 1.3s ease;
+  mask-image: linear-gradient(to bottom,
+    black 0%,
+    black calc(100% - 100px),
+    transparent calc(100% - 55px),
+    transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom,
+    black 0%,
+    black calc(100% - 100px),
+    transparent calc(100% - 55px),
+    transparent 100%);
 }
-
 .slide.visible {
   opacity: 1;
   filter: blur(0);
@@ -59,22 +75,6 @@ body {
   border-radius: 5px;
   z-index: 1;
   transition: width 0.3s ease;
-}
-
-/* Logo */
-.logo {
-  position: absolute;
-  top: 35%;
-  left: 23%;
-  transform: translate(-50%, -50%);
-  max-height: 50%;
-  max-width: 30%;
-  width: auto;
-  z-index: 5;
-  opacity: 1;
-  filter: drop-shadow(1px 1px 1px);
-  text-shadow: -2px 2px 4px rgba(0, 0, 0, 0.5);
-  transition: transform 5.5s ease-in-out, opacity 5.5s ease-in-out;
 }
 
 /* Heading */
@@ -117,13 +117,92 @@ body {
   height: 100%;
 }
 
-/* Clickable Overlay Gradient */
-.clickable-overlay {
+/* Text Container with stacked logo + metadata + plot */
+.text-container {
+  position: absolute;
+  bottom: 4.5em;
+  left: 2vw;
+  max-width: 60vw;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.8em;
+  z-index: 12;
+}
+
+/* Logo inside text stack */
+.text-container .logo {
+  position: static !important;
+  max-height: 30vh;
+  max-width: 40vw;
+  width: auto;
+  opacity: 1;
+  align-self: flex-start;
+  margin-left: 20vw;
+  transform: translateX(-50%);
+  filter: drop-shadow(1px 1px 1px);
+  text-shadow: -2px 2px 4px rgba(0, 0, 0, 0.5);
+  transition: transform 5.5s ease-in-out, opacity 5.5s ease-in-out;
+}
+
+/* Metadata bar */
+.text-container .lorem-ipsum {
+  position: static !important;
+  margin: 0;
+  max-width: 45vw;
+  font-family: "Titillium Web", sans-serif;
+  font-size: 1.2em;
+  font-weight: 400;
+  line-height: 1.8em;
+  color: #f5f5f5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.75))
+          drop-shadow(0 5px 8px rgba(0, 0, 0, 0.55));
+}
+
+/* Plot text */
+.text-container .plot {
+  position: static !important;
+  font-family: "Inter", sans-serif;
+  font-size: 1.2em;
+  font-weight: 500;
+  line-height: 1.3em;
+  color: #f1f1f1;
+  max-width: 45vw;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.8))
+          drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6));
+}
+
+.text-container .lorem-ipsum,
+.text-container .lorem-ipsum * {
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.bullet-separator {
+  margin: 0 5px;
+  color: var(--md-sys-color-primary);
+  font-weight: bold;
+  font-size: 1.3em;
+  vertical-align: middle;
+}
+
+.logo-hover-zone {
   position: absolute;
   top: 0;
   left: 0;
-  width: calc(100% - 50px);
   height: calc(100% - 50px);
+  width: 50%;
   background: linear-gradient(
     140deg,
     rgba(0, 0, 0, 0.89) 0%,
@@ -140,75 +219,9 @@ body {
     rgba(0, 0, 0, 0.01) 68.75%,
     rgba(0, 0, 0, 0) 75%
   );
-  z-index: 10;
+  z-index: 15; /* ensure it's above the backdrop and clickable overlay */
+  pointer-events: auto;
   cursor: pointer;
-}
-
-/* Lorem Ipsum Text (Year · Rating · Runtime) */
-.lorem-ipsum {
-  position: absolute;
-  top: 5vh;
-  width: 100%;
-  padding-left: 4vw;
-  box-sizing: border-box;
-  font-family: "Titillium Web", sans-serif;
-  font-size: 1.5em;
-  line-height: 1.75em;
-  color: #ecf0f1;
-  text-shadow: 3px 3px 20px rgba(0, 0, 0, 1);
-  opacity: 1;
-  transition: opacity 0.3s ease, width 0.3s ease;
-  text-align: left;
-  z-index: 11;
-}
-
-/* Plot Text */
-.plot {
-  position: absolute;
-  bottom: 1.5em;
-  width: 99.8vw;
-  min-width: 99.8vw;
-  padding: 2.5em 2vw 0 2.5vw;
-  box-sizing: border-box;
-  font-family: "Inter", sans-serif;
-  font-size: 19px;
-  font-weight: 200;
-  font-style: italic;
-  line-height: 2em;
-  color: var(--color-text-body);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  isolation: isolate;
-  transition: width 0.3s ease;
-  z-index: 11;
-}
-
-.bottom-fade {
-  position: absolute;
-  bottom: 50px;                /* aligns with bottom edge of wrapper */
-  left: 0;
-  width: 100%;             /* stretch full width */
-  height: 25px;
-  pointer-events: none;     /* let clicks pass through */
-  background: linear-gradient(
-    to bottom,
-    rgba(28, 27, 31, 0),
-    rgba(28, 27, 31, 1)
-  );
-  z-index: 10;              /* below the plot text */
-}
-
-
-/* Hover Effects */
-.slide:hover .lorem-ipsum {
-  opacity: 1;
-}
-
-.slide:hover .logo,
-.spotlight-wrapper:hover .slide.visible .logo {
-  transform: translate(-50%, -50%) scale(1.2) !important;
-  opacity: 0.1 !important;
 }
 
 /* Star Icon */
@@ -216,6 +229,7 @@ body {
   font-size: 1em;
   margin-right: 0;
   color: gold;
+  vertical-align: middle;
 }
 
 /* Emby Scroll Buttons */
@@ -266,6 +280,12 @@ body {
   font-feature-settings: "liga";
 }
 
+.lorem-ipsum .material-icons {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1em;
+}
+
 /* Error Message */
 .error-message {
   position: fixed;
@@ -280,10 +300,77 @@ body {
   z-index: 1000;
 }
 
+/* Phone-width Styling */
+@media screen and (max-width: 768px) {
+  .logo {
+    left: 50% !important;
+	top: 20% !important;
+    transform: translateX(-50%) !important;
+    max-width: 65vw;
+    max-height: none;
+    z-index: 15;
+  }
+
+  .bullet-separator {
+    margin: 0 6px;
+    font-size: 1em;
+    color: var(--md-sys-color-primary);
+    font-weight: bold;
+    vertical-align: middle;
+  }
+
+  /* Force a line break after the 2nd bullet */
+	.bullet-separator.second-bullet::after {
+	  content: "";
+	  display: block;
+	}
+
+  .star-icon {
+    font-size: 0.9em;
+  }
+
+  .lorem-ipsum img {
+    height: 0.9em !important;
+  }
+
+  .plot {
+    max-width: 90vw;
+	font-size: 0.9em;
+    left: 5vw;
+    padding-right: 0;
+	bottom: 7.0em;
+  }
+  
+  .text-container {
+	bottom: 7.5em;
+    left: 5vw;
+    right: 5vw;
+    max-width: 90vw;
+    gap: 0.6em;
+  }
+
+  .text-container .logo {
+    max-width: 50vw !important;
+    max-height: none !important;
+    margin-left: 45vw !important;
+	margin-bottom: 5vw !important;
+  }
+
+  .text-container .lorem-ipsum {
+    font-size: 1em;
+    line-height: 1.5em;
+  }
+
+  .text-container .plot {
+    font-size: 0.9em;
+	max-width: 90vw !important;
+  }
+}
+
 /* Navigation Buttons Container */
 #navButtons {
   position: absolute;
-  bottom: 3.9em;
+  bottom: 4.5em;
   right: 1em;
   display: flex;
   z-index: 2;
@@ -390,3 +477,4 @@ body {
   opacity: 0.5;
   cursor: default;
 }
+
