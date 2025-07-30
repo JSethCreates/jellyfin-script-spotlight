@@ -126,7 +126,8 @@ c3c48cb8a80c0b5172e8470966a10381 The Shining
 When `list.txt` is present, only these items will be included in the Spotlight slideshow (with trailers and metadata, if available).
 
 ---
-Further Demo
+Further Demos
+[https://i.imgur.com/Aiopb20.mp4](https://i.imgur.com/Aiopb20.mp4)
 [https://i.imgur.com/sxyrRdX.mp4](https://i.imgur.com/651aqEG.mp4)
 
 ---
