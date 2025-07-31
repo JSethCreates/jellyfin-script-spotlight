@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Seth's Spotlight - A Jellyfin UI Enhancement v10.0.1</title>
+    <title>Seth's Spotlight - A Jellyfin UI Enhancement v10.1.1</title>
 
     <!-- Fonts and Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -87,7 +87,7 @@
     <script>
         // Initialize global variables
         let customTitle = '';
-        let moviesSeriesBoth = 3, shuffleInterval = 10000, plotMaxLength = 450, useTrailers = true;
+        let moviesSeriesBoth = 2, shuffleInterval = 10000, plotMaxLength = 450, useTrailers = true;
         let isChangingSlide = false, player = null, slideChangeTimeout = null, isHomePageActive = false, navigationInterval = null;
         let currentLocation = window.top.location.href;
         let movieList = [], currentMovieIndex = 0, lastMovie = null, currentMovie = null, currentSlideElement = null;
@@ -386,7 +386,7 @@
 				  '<!DOCTYPE html><html><head><meta charset="utf-8">',
 				  '<style>',
 				  'html,body { margin: 0; height: 100%; background: #000; }',
-				  'video { width: 100%; height: 100%; object-fit: contain; }',
+				  'video { width: 100%; height: 100%; object-fit: contain; outline: none; }',
 				  'video::-webkit-media-controls-panel { display: none !important; -webkit-appearance: none; }',
 				  'video::-moz-media-controls { display: none !important; }',
 				  '</style></head><body>',
