@@ -302,8 +302,8 @@ body {
 }
 
 #volumeButton .material-icons {
-  font-size: 1.2em;
-  margin: 0 0.25em;
+  font-size: 0.9em;
+  margin: 0 0.15em;
 }
 
 /* Invisible hover bridge */
@@ -547,10 +547,11 @@ body {
 #mediaButton,
 #playPauseButton {
   border-radius: 0;
-  font-size: 1.9em !important;
+  font-size: 1.5em !important;
 }
 #mediaButton .material-icons {
   font-size: 0.8em !important;
+  margin: 0 0.15em;
 }
 
 #rightButton {
