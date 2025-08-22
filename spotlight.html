@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Seth's Spotlight - A Jellyfin UI Enhancement v10.1.1</title>
+    <title>Seth's Spotlight - A Jellyfin UI Enhancement v1.2.0</title>
 
     <!-- Fonts and Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -77,6 +77,11 @@
             <button id="playPauseButton" type="button" tabindex="0" aria-label="Toggle Trailer Playback">
                 <span class="material-icons" aria-hidden="true">play_arrow</span>
             </button>
+			<button id="volumeButton" type="button" aria-label="Volume">
+				<span class="material-icons" aria-hidden="true">volume_up</span>
+				<div id="volumeHoverZone"></div>
+				<input id="volumeSlider" type="range" min="0" max="100" value="50">
+			</button>
             <button id="rightButton" type="button" tabindex="0" aria-label="Next Movie">
                 <span class="material-icons" aria-hidden="true">chevron_right</span>
             </button>
@@ -92,6 +97,7 @@
         let currentLocation = window.top.location.href;
         let movieList = [], currentMovieIndex = 0, lastMovie = null, currentMovie = null, currentSlideElement = null;
 		let localTrailerIframe = null;
+		let globalVolume = Number(localStorage.getItem('spotlightVolume') ?? 0.5);
 		
 		//Get User Auth token
 		const getJellyfinAuth = () => {
@@ -393,7 +399,7 @@
 				  '<video id="lt" autoplay playsinline preload="auto" controls src="', finalUrl ,'"></video>',
 				  '<script>',
 				  'const v=document.getElementById("lt");',
-				  'const unmute=()=>{ try{ v.muted=false; v.volume=1; }catch(e){} };',
+				  'const unmute=()=>{ try { v.volume = parent.globalVolume; v.muted = (parent.globalVolume === 0); } catch(e){} };',
 				  'v.addEventListener("loadedmetadata",()=>{',
 				  '  unmute();',
 				  '  try {',
@@ -406,12 +412,23 @@
 				  ' if(e.data==="pause")v.pause();',
 				  ' if(e.data==="play")v.play();',
 				  ' if(e.data==="toggle"){ v.paused?v.play():v.pause(); }',
+				  ' if(e.data?.type==="setVolume"){ ',
+				  ' v.volume = e.data.value;', 
+				  ' v.muted = (e.data.value===0);}', 
 				  '});',
 				  '<\/script>',
 				  '</body></html>'
 				].join('');
 
 				videoContainer.appendChild(iframe);
+				
+				iframe.addEventListener('load', () => {
+				  try {
+					iframe.contentWindow?.postMessage(
+					  { type: 'setVolume', value: globalVolume }, '*'
+					);
+				  } catch {}
+				});
 
 				// ⬇️ Add this block to resize the iframe based on actual video dimensions
 				window.addEventListener('message', function onMeta(e) {
@@ -532,7 +549,7 @@
                                 'onReady': event => {
 									console.log("YouTube player ready.");
 									event.target.playVideo();
-									event.target.setVolume(50);
+									event.target.setVolume(globalVolume * 100);
 									
 									const videoContainerHeight = videoContainer.clientHeight;
 									const calculatedWidth = videoContainerHeight * aspectRatio;
@@ -838,6 +855,50 @@
 			}
 			
 		};
+		
+		function initVolumeControl() {
+		  const button = document.getElementById('volumeButton');
+		  const icon = button.querySelector('.material-icons');
+		  const slider = document.getElementById('volumeSlider');
+
+		  let muted = globalVolume === 0;
+
+		  // 🔹 Initialize slider and icon state from globalVolume
+		  slider.value = globalVolume * 100;
+		  icon.textContent = muted ? 'volume_off' : 'volume_up';
+
+		  // Toggle mute on click (ignore clicks on slider itself)
+		  button.addEventListener('click', e => {
+			if (e.target === slider) return;
+			muted = !muted;
+			slider.value = muted ? 0 : globalVolume * 100 || 50; // fallback to 50 if unset
+			updateVolume(parseInt(slider.value, 10));
+			icon.textContent = muted ? 'volume_off' : 'volume_up';
+		  });
+
+		  // Adjust volume on slider input
+		  slider.addEventListener('input', () => {
+			const vol = parseInt(slider.value, 10);
+			muted = vol === 0;
+			icon.textContent = muted ? 'volume_off' : 'volume_up';
+			updateVolume(vol);
+		  });
+
+		  function updateVolume(vol) {
+			globalVolume = vol / 100; // persist globally
+			localStorage.setItem('spotlightVolume', String(globalVolume));
+			
+			// YouTube trailers
+			if (player?.setVolume) player.setVolume(vol);
+
+			// Local trailers
+			if (localTrailerIframe?.contentWindow) {
+			  localTrailerIframe.contentWindow.postMessage(
+				{ type: 'setVolume', value: globalVolume }, '*'
+			  );
+			}
+		  }
+		}
 
         // Initialize the slideshow once the DOM is fully loaded
         document.addEventListener('DOMContentLoaded', () => {
@@ -848,6 +909,7 @@
                 cleanup();
                 fetchRandomMovie();
                 attachButtonListeners();
+				initVolumeControl();
                 console.log("Slideshow initialized on homepage.");
             }
             navigationInterval = setInterval(checkNavigation, 250);
