@@ -36,7 +36,7 @@
 - **Access-aware randomization or custom lists**  
   Media items can be pre-defined in a `list.txt` file. If absent, Spotlight selects random items from the user’s accessible library (respecting profile restrictions, ie. it cannot serve content a user is unable to access).
 
-![1](https://raw.githubusercontent.com/JSethCreates/jellyfin-script-spotlight/refs/heads/main/screenshots/1.PNG)
+![1](https://github.com/JSethCreates/jellyfin-script-controlOSD/blob/main/screenshots/1.PNG?raw=true)
 
 ---
 
